@@ -8,3 +8,14 @@ C:\Users\FAMILIA ACOSTA\Desktop\ANKASIS\CapaPresentacion\obj\Debug\CapaPresentac
 C:\Users\FAMILIA ACOSTA\Desktop\ANKASIS\CapaPresentacion\obj\Debug\CapaPresentacion.exe
 C:\Users\FAMILIA ACOSTA\Desktop\ANKASIS\CapaPresentacion\obj\Debug\CapaPresentacion.pdb
 C:\Users\FAMILIA ACOSTA\Desktop\ANKASIS\CapaPresentacion\obj\Debug\CapaPresentacion.P_Principal.resources
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\bin\Debug\CapaPresentacion.exe.config
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\bin\Debug\CapaPresentacion.exe
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\bin\Debug\CapaPresentacion.pdb
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.csproj.AssemblyReference.cache
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.P_Principal.resources
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.Properties.Resources.resources
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.csproj.GenerateResource.cache
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.csproj.CoreCompileInputs.cache
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.exe
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.pdb
+C:\Users\Erick\Desktop\SISANKA\CapaPresentacion\obj\Debug\CapaPresentacion.P_Extintores.resources

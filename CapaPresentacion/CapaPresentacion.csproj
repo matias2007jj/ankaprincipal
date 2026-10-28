@@ -46,6 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="P_Extintores.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="P_Extintores.Designer.cs">
+      <DependentUpon>P_Extintores.cs</DependentUpon>
+    </Compile>
     <Compile Include="P_Principal.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,6 +60,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="P_Extintores.resx">
+      <DependentUpon>P_Extintores.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="P_Principal.resx">
       <DependentUpon>P_Principal.cs</DependentUpon>
     </EmbeddedResource>

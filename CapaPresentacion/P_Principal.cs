@@ -104,13 +104,49 @@ namespace CapaPresentacion
                 tmOcultarMenu.Enabled = false;
                 tmMostrarMenu.Enabled = true;
             }
-            pbLogo.Visible = !pbLogo.Visible;
-            // Alterna la visibilidad del logo
+            
+            if (PanelMenu.Width > ANCHO_MINIMO + 20)
+            {
+                pbLogo.Visible = false; // Oculta el logo cuando el menú está colapsado
+            }
+            else
+            {
+                pbLogo.Visible = true; // Muestra el logo cuando el menú está expandido
+            }
+
+
+        }
+
+        private void openChildForm(Form childForm)
+        {
+            // Cierra el formulario hijo actual si existe
+            if (this.ActiveMdiChild != null)
+            {
+                this.ActiveMdiChild.Close();
+            }
+            // Configura el formulario hijo
+            childForm.TopLevel = false;
+            childForm.FormBorderStyle = FormBorderStyle.None;
+            childForm.Dock = DockStyle.Fill;
+            // Agrega el formulario hijo al panel contenedor
+            this.PanelControlador.Controls.Add(childForm);
+            this.PanelControlador.Tag = childForm;
+            // Muestra el formulario hijo
+            childForm.BringToFront();
+            childForm.Show();
         }
 
         private void P_Principal_Load(object sender, EventArgs e)
         {
             anchoMaximo = PanelMenu.Width;
+        }
+
+        private void btnExtintores_Click(object sender, EventArgs e)
+        {
+            openChildForm(new P_Extintores());
+            
+            btnExtintores.BackColor = Color.OrangeRed;
+
         }
     }
 }
