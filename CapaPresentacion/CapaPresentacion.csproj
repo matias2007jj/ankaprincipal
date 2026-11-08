@@ -46,6 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="P_Clientes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="P_Clientes.Designer.cs">
+      <DependentUpon>P_Clientes.cs</DependentUpon>
+    </Compile>
     <Compile Include="P_Extintores.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -60,6 +66,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="P_Clientes.resx">
+      <DependentUpon>P_Clientes.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="P_Extintores.resx">
       <DependentUpon>P_Extintores.cs</DependentUpon>
     </EmbeddedResource>
@@ -87,6 +96,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CapaDatos\CapaDatos.csproj">
+      <Project>{66391bb3-6627-4809-a47d-913ba766b64d}</Project>
+      <Name>CapaDatos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CapaEntidad\CapaEntidad.csproj">
+      <Project>{19c03dca-e2f0-483c-9ac2-1df3b6968506}</Project>
+      <Name>CapaEntidad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CapaNegocio\CapaNegocio.csproj">
+      <Project>{61ef9fa5-cd4b-4f1a-8ab8-4930590c57de}</Project>
+      <Name>CapaNegocio</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

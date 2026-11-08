@@ -117,7 +117,7 @@ namespace CapaPresentacion
 
         }
 
-        private void openChildForm(Form childForm)
+        public void openChildForm(Form childForm)
         {
             // Cierra el formulario hijo actual si existe
             if (this.ActiveMdiChild != null)
@@ -147,6 +147,12 @@ namespace CapaPresentacion
             
             btnExtintores.BackColor = Color.OrangeRed;
 
+        }
+
+        private void btnClientes_Click(object sender, EventArgs e)
+        {
+            openChildForm(new P_Clientes());
+            btnClientes.BackColor = Color.OrangeRed;
         }
     }
 }

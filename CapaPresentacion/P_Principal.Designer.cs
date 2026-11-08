@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(P_Principal));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel8 = new System.Windows.Forms.Panel();
             this.btnMinimizar = new System.Windows.Forms.Button();
             this.btnSalir = new System.Windows.Forms.Button();
@@ -45,7 +47,7 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.button4 = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnClientes = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.btnExtintores = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -56,15 +58,13 @@
             this.tmMostrarMenu = new System.Windows.Forms.Timer(this.components);
             this.PanelControlador = new System.Windows.Forms.Panel();
             this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.PanelMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLogo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnMenu)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pblogo2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -84,6 +84,27 @@
             this.panel1.Size = new System.Drawing.Size(1040, 30);
             this.panel1.TabIndex = 0;
             this.panel1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseMove);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft YaHei UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label1.Location = new System.Drawing.Point(37, 6);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(90, 19);
+            this.label1.TabIndex = 15;
+            this.label1.Text = "ANAKA FIRE";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(3, -1);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(39, 30);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 14;
+            this.pictureBox1.TabStop = false;
             // 
             // panel8
             // 
@@ -172,7 +193,7 @@
             this.PanelMenu.Controls.Add(this.panel5);
             this.PanelMenu.Controls.Add(this.button4);
             this.PanelMenu.Controls.Add(this.panel4);
-            this.PanelMenu.Controls.Add(this.button3);
+            this.PanelMenu.Controls.Add(this.btnClientes);
             this.PanelMenu.Controls.Add(this.panel3);
             this.PanelMenu.Controls.Add(this.btnExtintores);
             this.PanelMenu.Controls.Add(this.panel2);
@@ -296,26 +317,27 @@
             this.panel4.Size = new System.Drawing.Size(4, 50);
             this.panel4.TabIndex = 6;
             // 
-            // button3
+            // btnClientes
             // 
-            this.button3.BackColor = System.Drawing.Color.Firebrick;
-            this.button3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.button3.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button3.FlatAppearance.BorderSize = 0;
-            this.button3.FlatAppearance.MouseDownBackColor = System.Drawing.Color.OrangeRed;
-            this.button3.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Firebrick;
-            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold);
-            this.button3.ForeColor = System.Drawing.Color.White;
-            this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
-            this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button3.Location = new System.Drawing.Point(0, 180);
-            this.button3.Margin = new System.Windows.Forms.Padding(2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(197, 50);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "     Clientes";
-            this.button3.UseVisualStyleBackColor = false;
+            this.btnClientes.BackColor = System.Drawing.Color.Firebrick;
+            this.btnClientes.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btnClientes.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClientes.FlatAppearance.BorderSize = 0;
+            this.btnClientes.FlatAppearance.MouseDownBackColor = System.Drawing.Color.OrangeRed;
+            this.btnClientes.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Firebrick;
+            this.btnClientes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClientes.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnClientes.ForeColor = System.Drawing.Color.White;
+            this.btnClientes.Image = ((System.Drawing.Image)(resources.GetObject("btnClientes.Image")));
+            this.btnClientes.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnClientes.Location = new System.Drawing.Point(0, 180);
+            this.btnClientes.Margin = new System.Windows.Forms.Padding(2);
+            this.btnClientes.Name = "btnClientes";
+            this.btnClientes.Size = new System.Drawing.Size(197, 50);
+            this.btnClientes.TabIndex = 5;
+            this.btnClientes.Text = "     Clientes";
+            this.btnClientes.UseVisualStyleBackColor = false;
+            this.btnClientes.Click += new System.EventHandler(this.btnClientes_Click);
             // 
             // panel3
             // 
@@ -431,27 +453,6 @@
             this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb.TabIndex = 0;
             this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb.TabStop = false;
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(3, -1);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(39, 30);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 14;
-            this.pictureBox1.TabStop = false;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft YaHei UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label1.Location = new System.Drawing.Point(37, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(90, 19);
-            this.label1.TabIndex = 15;
-            this.label1.Text = "ANAKA FIRE";
-            // 
             // P_Principal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -469,12 +470,12 @@
             this.Load += new System.EventHandler(this.P_Principal_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.PanelMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbLogo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnMenu)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pblogo2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -495,7 +496,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnClientes;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button btnExtintores;
         private System.Windows.Forms.Panel panel7;

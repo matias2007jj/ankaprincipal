@@ -1,0 +1,13 @@
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\CapaNegocio.dll
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\CapaNegocio.pdb
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\CapaDatos.dll
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\CapaEntidad.dll
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\Newtonsoft.Json.dll
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\CapaDatos.pdb
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\CapaEntidad.pdb
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\bin\Debug\Newtonsoft.Json.xml
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\obj\Debug\CapaNegocio.csproj.AssemblyReference.cache
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\obj\Debug\CapaNegocio.csproj.CoreCompileInputs.cache
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\obj\Debug\CapaNego.81B9D119.Up2Date
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\obj\Debug\CapaNegocio.dll
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaNegocio\obj\Debug\CapaNegocio.pdb

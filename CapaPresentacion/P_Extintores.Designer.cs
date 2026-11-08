@@ -34,29 +34,28 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dtgv_Extintores = new System.Windows.Forms.DataGridView();
-            this.Cod_U = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Num_Serie = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.N_Interno = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Sede = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Tipo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Capacidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Marca = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.AñoFabricacion = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Eje_ultimoS = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Prox_Mantenimiento = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.F_PruebaH = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Venci_PruebaH = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Estado = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Documentacion = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.Editar = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.Eliminar = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.QR = new System.Windows.Forms.DataGridViewButtonColumn();
             this.txtBuscar = new System.Windows.Forms.TextBox();
             this.btnBuscar = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.btnAgregar = new System.Windows.Forms.Button();
+            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nro_serie = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nro_interno = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.sede = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tipo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.capacidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.marca = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.anio_fabricacion = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.eje_servicio = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.proximo_mantenimiento = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.fecha_prueba_hidrostatica = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.vencimiento_ph = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.estado = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Editar = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Eliminar = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.QR = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dtgv_Extintores)).BeginInit();
             this.SuspendLayout();
             // 
@@ -84,20 +83,19 @@
             this.dtgv_Extintores.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dtgv_Extintores.ColumnHeadersHeight = 25;
             this.dtgv_Extintores.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Cod_U,
-            this.Num_Serie,
-            this.N_Interno,
-            this.Sede,
-            this.Tipo,
-            this.Capacidad,
-            this.Marca,
-            this.AñoFabricacion,
-            this.Eje_ultimoS,
-            this.Prox_Mantenimiento,
-            this.F_PruebaH,
-            this.Venci_PruebaH,
-            this.Estado,
-            this.Documentacion,
+            this.id,
+            this.nro_serie,
+            this.nro_interno,
+            this.sede,
+            this.tipo,
+            this.capacidad,
+            this.marca,
+            this.anio_fabricacion,
+            this.eje_servicio,
+            this.proximo_mantenimiento,
+            this.fecha_prueba_hidrostatica,
+            this.vencimiento_ph,
+            this.estado,
             this.Editar,
             this.Eliminar,
             this.QR});
@@ -116,126 +114,6 @@
             this.dtgv_Extintores.Size = new System.Drawing.Size(791, 357);
             this.dtgv_Extintores.StandardTab = true;
             this.dtgv_Extintores.TabIndex = 0;
-            // 
-            // Cod_U
-            // 
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Red;
-            this.Cod_U.DefaultCellStyle = dataGridViewCellStyle3;
-            this.Cod_U.HeaderText = "Codigo.U";
-            this.Cod_U.Name = "Cod_U";
-            this.Cod_U.Width = 82;
-            // 
-            // Num_Serie
-            // 
-            this.Num_Serie.HeaderText = "Nº Serie";
-            this.Num_Serie.Name = "Num_Serie";
-            this.Num_Serie.Width = 77;
-            // 
-            // N_Interno
-            // 
-            this.N_Interno.HeaderText = "Nº Interno";
-            this.N_Interno.Name = "N_Interno";
-            this.N_Interno.Width = 88;
-            // 
-            // Sede
-            // 
-            this.Sede.HeaderText = "Sede";
-            this.Sede.Name = "Sede";
-            this.Sede.Width = 59;
-            // 
-            // Tipo
-            // 
-            this.Tipo.HeaderText = "Tipo";
-            this.Tipo.Name = "Tipo";
-            this.Tipo.Width = 55;
-            // 
-            // Capacidad
-            // 
-            this.Capacidad.HeaderText = "Capacidad";
-            this.Capacidad.Name = "Capacidad";
-            this.Capacidad.Width = 90;
-            // 
-            // Marca
-            // 
-            this.Marca.HeaderText = "Marca";
-            this.Marca.Name = "Marca";
-            this.Marca.Width = 65;
-            // 
-            // AñoFabricacion
-            // 
-            this.AñoFabricacion.HeaderText = "Año Fabricacion";
-            this.AñoFabricacion.Name = "AñoFabricacion";
-            this.AñoFabricacion.Width = 122;
-            // 
-            // Eje_ultimoS
-            // 
-            this.Eje_ultimoS.HeaderText = "Eje. Del Servicio";
-            this.Eje_ultimoS.Name = "Eje_ultimoS";
-            this.Eje_ultimoS.Width = 125;
-            // 
-            // Prox_Mantenimiento
-            // 
-            this.Prox_Mantenimiento.HeaderText = "Prox. Mantenimiento";
-            this.Prox_Mantenimiento.Name = "Prox_Mantenimiento";
-            this.Prox_Mantenimiento.Width = 145;
-            // 
-            // F_PruebaH
-            // 
-            this.F_PruebaH.HeaderText = "Fecha Prueba H.";
-            this.F_PruebaH.Name = "F_PruebaH";
-            this.F_PruebaH.Width = 126;
-            // 
-            // Venci_PruebaH
-            // 
-            this.Venci_PruebaH.HeaderText = "Venc. Prueba H.";
-            this.Venci_PruebaH.Name = "Venci_PruebaH";
-            this.Venci_PruebaH.Width = 124;
-            // 
-            // Estado
-            // 
-            this.Estado.HeaderText = "Estado";
-            this.Estado.Name = "Estado";
-            this.Estado.Width = 69;
-            // 
-            // Documentacion
-            // 
-            this.Documentacion.HeaderText = "Documentacion";
-            this.Documentacion.Name = "Documentacion";
-            this.Documentacion.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Documentacion.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.Documentacion.Width = 118;
-            // 
-            // Editar
-            // 
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.Editar.DefaultCellStyle = dataGridViewCellStyle4;
-            this.Editar.HeaderText = "           ";
-            this.Editar.Name = "Editar";
-            this.Editar.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Editar.Text = "editar";
-            this.Editar.UseColumnTextForButtonValue = true;
-            this.Editar.Width = 55;
-            // 
-            // Eliminar
-            // 
-            this.Eliminar.HeaderText = "ACCIONES";
-            this.Eliminar.Name = "Eliminar";
-            this.Eliminar.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Eliminar.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.Eliminar.Text = "Eliminar";
-            this.Eliminar.UseColumnTextForButtonValue = true;
-            this.Eliminar.Width = 92;
-            // 
-            // QR
-            // 
-            this.QR.HeaderText = " ";
-            this.QR.Name = "QR";
-            this.QR.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.QR.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.QR.Text = "QR";
-            this.QR.UseColumnTextForButtonValue = true;
-            this.QR.Width = 34;
             // 
             // txtBuscar
             // 
@@ -312,6 +190,132 @@
             this.btnAgregar.UseVisualStyleBackColor = true;
             this.btnAgregar.Click += new System.EventHandler(this.btnAgregar_Click);
             // 
+            // id
+            // 
+            this.id.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.id.DataPropertyName = "codigo_u";
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Red;
+            this.id.DefaultCellStyle = dataGridViewCellStyle3;
+            this.id.HeaderText = "Codigo.U";
+            this.id.MinimumWidth = 9;
+            this.id.Name = "id";
+            // 
+            // nro_serie
+            // 
+            this.nro_serie.DataPropertyName = "nro_serie";
+            this.nro_serie.HeaderText = "Nº Serie";
+            this.nro_serie.Name = "nro_serie";
+            this.nro_serie.Width = 77;
+            // 
+            // nro_interno
+            // 
+            this.nro_interno.DataPropertyName = "nro_interno";
+            this.nro_interno.HeaderText = "Nº Interno";
+            this.nro_interno.Name = "nro_interno";
+            this.nro_interno.Width = 88;
+            // 
+            // sede
+            // 
+            this.sede.DataPropertyName = "sede";
+            this.sede.HeaderText = "Sede";
+            this.sede.Name = "sede";
+            this.sede.Width = 59;
+            // 
+            // tipo
+            // 
+            this.tipo.DataPropertyName = "tipo";
+            this.tipo.HeaderText = "Tipo";
+            this.tipo.Name = "tipo";
+            this.tipo.Width = 55;
+            // 
+            // capacidad
+            // 
+            this.capacidad.DataPropertyName = "capacidad";
+            this.capacidad.HeaderText = "Capacidad";
+            this.capacidad.Name = "capacidad";
+            this.capacidad.Width = 90;
+            // 
+            // marca
+            // 
+            this.marca.DataPropertyName = "marca";
+            this.marca.HeaderText = "Marca";
+            this.marca.Name = "marca";
+            this.marca.Width = 65;
+            // 
+            // anio_fabricacion
+            // 
+            this.anio_fabricacion.DataPropertyName = "anio_fabricacion";
+            this.anio_fabricacion.HeaderText = "Año Fabricacion";
+            this.anio_fabricacion.Name = "anio_fabricacion";
+            this.anio_fabricacion.Width = 122;
+            // 
+            // eje_servicio
+            // 
+            this.eje_servicio.DataPropertyName = "eje_servicio";
+            this.eje_servicio.HeaderText = "Eje. Del Servicio";
+            this.eje_servicio.Name = "eje_servicio";
+            this.eje_servicio.Width = 125;
+            // 
+            // proximo_mantenimiento
+            // 
+            this.proximo_mantenimiento.DataPropertyName = "proximo_mantenimiento";
+            this.proximo_mantenimiento.HeaderText = "Prox. Mantenimiento";
+            this.proximo_mantenimiento.Name = "proximo_mantenimiento";
+            this.proximo_mantenimiento.Width = 145;
+            // 
+            // fecha_prueba_hidrostatica
+            // 
+            this.fecha_prueba_hidrostatica.DataPropertyName = "fecha_prueba_hidrostatica";
+            this.fecha_prueba_hidrostatica.HeaderText = "Fecha Prueba H.";
+            this.fecha_prueba_hidrostatica.Name = "fecha_prueba_hidrostatica";
+            this.fecha_prueba_hidrostatica.Width = 126;
+            // 
+            // vencimiento_ph
+            // 
+            this.vencimiento_ph.DataPropertyName = "vencimiento_ph";
+            this.vencimiento_ph.HeaderText = "Venc. Prueba H.";
+            this.vencimiento_ph.Name = "vencimiento_ph";
+            this.vencimiento_ph.Width = 124;
+            // 
+            // estado
+            // 
+            this.estado.DataPropertyName = "estado";
+            this.estado.HeaderText = "Estado";
+            this.estado.Name = "estado";
+            this.estado.Width = 69;
+            // 
+            // Editar
+            // 
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.Editar.DefaultCellStyle = dataGridViewCellStyle4;
+            this.Editar.HeaderText = "           ";
+            this.Editar.Name = "Editar";
+            this.Editar.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Editar.Text = "editar";
+            this.Editar.UseColumnTextForButtonValue = true;
+            this.Editar.Width = 55;
+            // 
+            // Eliminar
+            // 
+            this.Eliminar.HeaderText = "ACCIONES";
+            this.Eliminar.Name = "Eliminar";
+            this.Eliminar.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Eliminar.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.Eliminar.Text = "Eliminar";
+            this.Eliminar.UseColumnTextForButtonValue = true;
+            this.Eliminar.Width = 92;
+            // 
+            // QR
+            // 
+            this.QR.HeaderText = " ";
+            this.QR.Name = "QR";
+            this.QR.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.QR.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.QR.Text = "QR";
+            this.QR.UseColumnTextForButtonValue = true;
+            this.QR.Width = 34;
+            // 
             // P_Extintores
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
@@ -329,7 +333,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "P_Extintores";
-            this.Text = "P_Extintores";
+            this.Text = " ";
+            this.Load += new System.EventHandler(this.P_Extintores_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dtgv_Extintores)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -337,27 +342,26 @@
         }
 
         #endregion
-        private System.Windows.Forms.DataGridView dtgv_Extintores;
         private System.Windows.Forms.TextBox txtBuscar;
         private System.Windows.Forms.Button btnBuscar;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnAgregar;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Cod_U;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Num_Serie;
-        private System.Windows.Forms.DataGridViewTextBoxColumn N_Interno;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Sede;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Tipo;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Capacidad;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Marca;
-        private System.Windows.Forms.DataGridViewTextBoxColumn AñoFabricacion;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Eje_ultimoS;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Prox_Mantenimiento;
-        private System.Windows.Forms.DataGridViewTextBoxColumn F_PruebaH;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Venci_PruebaH;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Estado;
-        private System.Windows.Forms.DataGridViewLinkColumn Documentacion;
+        public System.Windows.Forms.DataGridView dtgv_Extintores;
+        private System.Windows.Forms.DataGridViewTextBoxColumn id;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nro_serie;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nro_interno;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sede;
+        private System.Windows.Forms.DataGridViewTextBoxColumn tipo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn capacidad;
+        private System.Windows.Forms.DataGridViewTextBoxColumn marca;
+        private System.Windows.Forms.DataGridViewTextBoxColumn anio_fabricacion;
+        private System.Windows.Forms.DataGridViewTextBoxColumn eje_servicio;
+        private System.Windows.Forms.DataGridViewTextBoxColumn proximo_mantenimiento;
+        private System.Windows.Forms.DataGridViewTextBoxColumn fecha_prueba_hidrostatica;
+        private System.Windows.Forms.DataGridViewTextBoxColumn vencimiento_ph;
+        private System.Windows.Forms.DataGridViewTextBoxColumn estado;
         private System.Windows.Forms.DataGridViewButtonColumn Editar;
         private System.Windows.Forms.DataGridViewButtonColumn Eliminar;
         private System.Windows.Forms.DataGridViewButtonColumn QR;

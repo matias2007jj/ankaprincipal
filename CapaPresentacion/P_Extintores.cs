@@ -1,21 +1,82 @@
-﻿using System;
+﻿using CapaDatos;
+using CapaEntidad;
+using CapaNegocio;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CapaPresentacion
 {
     public partial class P_Extintores : Form
     {
+        private readonly N_Extintores objNegocio = new N_Extintores();
+        private List<E_Extintor> listaCompletaExtintores = new List<E_Extintor>();
+        private string Texto = "Buscar por NºSerie, Codigo.U, Marca, Sede o Tipo";
+        private string clienteFiltro = null;
+
+        // Constructor por defecto
         public P_Extintores()
         {
             InitializeComponent();
         }
 
-        private string Texto = "Buscar por NºSerie, Codigo.U, Marca, Sede o Tipo";
-
-        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        // Constructor que recibe el código de cliente al hacer doble clic desde P_Clientes
+        public P_Extintores(string codigoCliente) : this()
         {
+            this.clienteFiltro = codigoCliente;
         }
+
+        private async void P_Extintores_Load(object sender, EventArgs e)
+        {
+            txtBuscar.Text = Texto;
+            txtBuscar.ForeColor = Color.Gray;
+            dtgv_Extintores.AutoGenerateColumns = false;
+
+            // Pasa la variable clienteFiltro (si vino desde P_Clientes tendrá valor, si no será null)
+            await CargarDatosWeb(clienteFiltro);
+        }
+
+        public async Task CargarDatosWeb(string codigoClienteFiltro = null)
+        {
+            try
+            {
+                this.UseWaitCursor = true;
+
+                // 1. Obtener la lista completa desde la Capa de Negocio
+                List<E_Extintor> todos = await objNegocio.ListarExtintores();
+
+                // 2. Si viene un cliente, filtramos la lista completa que usará el DataGridView y el buscador
+                if (!string.IsNullOrWhiteSpace(codigoClienteFiltro))
+                {
+                    string filtroLimpio = codigoClienteFiltro.Trim();
+                    listaCompletaExtintores = todos
+                        .Where(x => x.codigo_cliente != null && x.codigo_cliente.Trim() == filtroLimpio)
+                        .ToList();
+                }
+                else
+                {
+                    listaCompletaExtintores = todos;
+                }
+
+                // 3. Refrescar el DataGridView con los datos filtrados
+                dtgv_Extintores.DataSource = null;
+                dtgv_Extintores.DataSource = listaCompletaExtintores;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar datos: " + ex.Message,
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.UseWaitCursor = false;
+            }
+        }
+
+        #region Manejo de Placeholder (Buscador)
 
         private void txtBuscar_Click(object sender, EventArgs e)
         {
@@ -45,39 +106,49 @@ namespace CapaPresentacion
             }
         }
 
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            // Filtrado automático mientras escribes
+            FiltrarTabla();
+        }
+
+        #endregion
+
+        #region Botones de Acción
+
         private void btnBuscar_Click(object sender, EventArgs e)
         {
-          // if (txtBuscar.Text == Texto || string.IsNullOrWhiteSpace(txtBuscar.Text))
-          //  {
-             //   MessageBox.Show("Ingrese un valor para buscar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-               // return;
-          //  }
+            FiltrarTabla();
+        }
 
-          // else
-           // {
-                // Aquí puedes agregar la lógica para realizar la búsqueda con el valor ingresado en txtBuscar.Text
-            //    MessageBox.Show($"Buscando: {txtBuscar.Text}", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //}
+        private void FiltrarTabla()
+        {
+            string filtro = txtBuscar.Text.Trim().ToLower();
+
+            if (filtro == Texto.ToLower() || string.IsNullOrWhiteSpace(filtro))
+            {
+                dtgv_Extintores.DataSource = listaCompletaExtintores;
+                return;
+            }
+
+            // Filtra la lista por Serie, Código Único, Marca, Sede o Tipo
+            var listaFiltrada = listaCompletaExtintores.Where(x =>
+                (x.nro_serie != null && x.nro_serie.ToLower().Contains(filtro)) ||
+                (x.codigo_u != null && x.codigo_u.ToLower().Contains(filtro)) ||
+                (x.marca != null && x.marca.ToLower().Contains(filtro)) ||
+                (x.sede != null && x.sede.ToLower().Contains(filtro)) ||
+                (x.tipo != null && x.tipo.ToLower().Contains(filtro))
+            ).ToList();
+
+            dtgv_Extintores.DataSource = null;
+            dtgv_Extintores.DataSource = listaFiltrada;
         }
 
         private void btnAgregar_Click(object sender, EventArgs e)
         {
-            dtgv_Extintores.Rows.Add(
-                "001",                 // Codigo.U
-                "SERIE-123",           // Nº Serie
-                "INT-99",              // Nº Interno
-                "Sede Central",        // Sede
-                "PQS",                 // Tipo
-        "6 Kg",                // Capacidad
-        "ABC",                 // Marca
-        "2023",                // Año Fabricacion
-        "Enero 2026",          // Eje. Del Servicio
-        "Julio 2026",          // Prox. Mantenimiento
-        "10/05/2023",          // Fecha Prueba H.
-        "10/05/2028",          // Venc. Prueba H.
-        "Operativo",           // Estado
-        "Completa"             // Documentacion
-    );
+            // Abrir formulario de registro
         }
+
+        #endregion
     }
 }
