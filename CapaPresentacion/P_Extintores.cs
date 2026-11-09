@@ -4,6 +4,7 @@ using CapaNegocio;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -37,12 +38,15 @@ namespace CapaPresentacion
             txtBuscar.ForeColor = Color.Gray;
             dtgv_Extintores.AutoGenerateColumns = false;
 
-            // Asegurar una única suscripción al evento CellContentClick
+            // Asegurar eventos
             dtgv_Extintores.CellContentClick -= dtgv_Extintores_CellContentClick;
             dtgv_Extintores.CellContentClick += dtgv_Extintores_CellContentClick;
 
-            // Asegurar mapeo de DataPropertyName para cada columna del DataGridView
+            dtgv_Extintores.CellFormatting -= dtgv_Extintores_CellFormatting;
+            dtgv_Extintores.CellFormatting += dtgv_Extintores_CellFormatting;
+
             ConfigurarMapeoColumnas();
+            AgregarColumnaDocumentacion();
 
             await CargarDatosWeb(clienteFiltro);
         }
@@ -54,7 +58,6 @@ namespace CapaPresentacion
                 string header = col.HeaderText.Trim().ToLower();
                 string name = col.Name.Trim().ToLower();
 
-                // Enlace explícito para Sede y Ubicación
                 if (header == "sede" || name.Contains("sede"))
                 {
                     col.DataPropertyName = "sede";
@@ -114,6 +117,59 @@ namespace CapaPresentacion
             }
         }
 
+        private void AgregarColumnaDocumentacion()
+        {
+            if (!dtgv_Extintores.Columns.Contains("btnCertificado"))
+            {
+                DataGridViewButtonColumn colCert = new DataGridViewButtonColumn();
+                colCert.Name = "btnCertificado";
+                colCert.HeaderText = "DOCUMENTACIÓN";
+                colCert.UseColumnTextForButtonValue = false; // Permite texto dinámico por celda
+                colCert.FlatStyle = FlatStyle.Flat;
+                colCert.DefaultCellStyle.ForeColor = Color.FromArgb(227, 6, 19);
+                colCert.DefaultCellStyle.Font = new Font("Arial", 8.5f, FontStyle.Bold);
+
+                int indexAcciones = dtgv_Extintores.Columns.Contains("btnEditar")
+                    ? dtgv_Extintores.Columns["btnEditar"].Index
+                    : dtgv_Extintores.Columns.Count;
+
+                if (indexAcciones > dtgv_Extintores.Columns.Count)
+                    indexAcciones = dtgv_Extintores.Columns.Count;
+
+                dtgv_Extintores.Columns.Insert(indexAcciones, colCert);
+            }
+        }
+
+        private void dtgv_Extintores_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            if (dtgv_Extintores.Columns[e.ColumnIndex].Name == "btnCertificado")
+            {
+                E_Extintor extintor = dtgv_Extintores.Rows[e.RowIndex].DataBoundItem as E_Extintor;
+                if (extintor != null)
+                {
+                    // Evaluar el tipo de documento disponible
+                    if (!string.IsNullOrWhiteSpace(extintor.ruta_informe_tecnico))
+                    {
+                        e.Value = "Informe Técnico";
+                    }
+                    else if (!string.IsNullOrWhiteSpace(extintor.ruta_cert_operatividad))
+                    {
+                        e.Value = "Cert. Operatividad";
+                    }
+                    else if (!string.IsNullOrWhiteSpace(extintor.ruta_cert_ph))
+                    {
+                        e.Value = "Cert. Prueba H.";
+                    }
+                    else
+                    {
+                        e.Value = "Sin Documento";
+                    }
+                }
+            }
+        }
+
         public async Task CargarDatosWeb(string codigoClienteFiltro = null)
         {
             try
@@ -122,7 +178,6 @@ namespace CapaPresentacion
 
                 List<E_Extintor> todos = await objNegocio.ListarExtintores();
 
-                // Estandarizar todas las columnas de fechas al formato MMM.-yyyy (ej. OCT.-2026, ABR.-2027)
                 foreach (var item in todos)
                 {
                     item.eje_servicio = FormatearMesAnio(item.eje_servicio);
@@ -239,7 +294,7 @@ namespace CapaPresentacion
 
         #endregion
 
-        #region Eventos de Acciones (Editar/Dar de Baja/Ficha/QR)
+        #region Eventos de Acciones
 
         private async void dtgv_Extintores_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -248,29 +303,68 @@ namespace CapaPresentacion
             DataGridViewColumn col = dtgv_Extintores.Columns[e.ColumnIndex];
             string nombreColumna = col.Name.Trim().ToLower();
             string tituloColumna = col.HeaderText.Trim().ToLower();
-            object valorCelda = dtgv_Extintores.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-            string textoCelda = valorCelda != null ? valorCelda.ToString().Trim().ToLower() : "";
+
+            bool esBotonCertificado = nombreColumna == "btncertificado" ||
+                                     tituloColumna.Contains("documentación") ||
+                                     tituloColumna.Contains("documentacion");
 
             bool esBotonEditar = nombreColumna == "btneditar" ||
                                  nombreColumna.Contains("editar") ||
-                                 tituloColumna == "editar" ||
-                                 textoCelda == "editar";
+                                 tituloColumna == "editar";
 
             bool esBotonEliminar = nombreColumna == "btneliminar" ||
                                    nombreColumna.Contains("eliminar") ||
-                                   tituloColumna == "eliminar" ||
-                                   textoCelda == "eliminar";
+                                   tituloColumna == "eliminar";
 
             bool esBotonQR = nombreColumna == "btnqr" ||
                              nombreColumna.Contains("qr") ||
-                             tituloColumna == "qr" ||
-                             textoCelda == "qr";
+                             tituloColumna == "qr";
 
             E_Extintor seleccionado = dtgv_Extintores.Rows[e.RowIndex].DataBoundItem as E_Extintor;
 
             if (seleccionado == null) return;
 
-            if (esBotonEditar)
+            if (esBotonCertificado)
+            {
+                // Priorizar el documento asignado
+                string rutaCert = !string.IsNullOrWhiteSpace(seleccionado.ruta_informe_tecnico)
+                    ? seleccionado.ruta_informe_tecnico
+                    : (!string.IsNullOrWhiteSpace(seleccionado.ruta_cert_operatividad) ? seleccionado.ruta_cert_operatividad : seleccionado.ruta_cert_ph);
+
+                if (!string.IsNullOrWhiteSpace(rutaCert))
+                {
+                    rutaCert = rutaCert.Trim().TrimStart('/');
+
+                    if (!rutaCert.StartsWith("storage/", StringComparison.OrdinalIgnoreCase) &&
+                        !rutaCert.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                    {
+                        rutaCert = "storage/" + rutaCert;
+                    }
+
+                    if (!rutaCert.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                    {
+                        rutaCert = "https://intranet.ankafire.com.pe/" + rutaCert;
+                    }
+
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = rutaCert,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error al abrir el documento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Este extintor no tiene ningún documento adjunto.", "Documentación", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else if (esBotonEditar)
             {
                 P_DetalleExtintor frmFicha = new P_DetalleExtintor(clienteFiltro, seleccionado);
                 if (frmFicha.ShowDialog() == DialogResult.OK)
@@ -280,7 +374,6 @@ namespace CapaPresentacion
             }
             else if (esBotonEliminar)
             {
-                // Ventana emergente de advertencia con opciones Sí y No
                 DialogResult respuesta = MessageBox.Show(
                     $"¿Está seguro de que desea dar de BAJA al extintor {seleccionado.codigo_u}?",
                     "Confirmar Dar de Baja",
@@ -295,7 +388,6 @@ namespace CapaPresentacion
             }
             else if (esBotonQR)
             {
-                // Abrir la ventana de generación e impresión del código QR
                 P_ImprimirQR frmQR = new P_ImprimirQR(seleccionado);
                 frmQR.ShowDialog();
             }
@@ -348,6 +440,10 @@ namespace CapaPresentacion
                 _ = CargarDatosWeb(clienteFiltro);
             }
         }
+
+        #region Elicitations Diagnostic Fork
+        /* Elicit control for multi-branch resolution */
+        #endregion
 
         #endregion
     }

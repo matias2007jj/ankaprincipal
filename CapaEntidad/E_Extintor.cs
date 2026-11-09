@@ -4,14 +4,16 @@
     {
         public int id { get; set; }
         public string codigo_u { get; set; }
-        public string codigo_cliente { get; set; } // <--- Agregado para resolver el error CS1061
+        public string codigo_cliente { get; set; }
+        public string nombre_cliente { get; set; } // Nombre o Razón Social del cliente
+        public string sede { get; set; }
         public string nro_serie { get; set; }
-        public string nro_interno { get; set; }
-        public string sede { get; set; }          // Para la columna Sede
-        public string ubicacion { get; set; }     // Para la columna Ubicación
         public string tipo { get; set; }
-        public string capacidad { get; set; }
+        public string capacidad { get; set; } // Capacidad del extintor
         public string marca { get; set; }
+        public string nro_interno { get; set; }
+ 
+        public string ubicacion { get; set; }     // Para la columna Ubicación
         public string anio_fabricacion { get; set; }
         public string eje_servicio { get; set; }
         public string proximo_mantenimiento { get; set; }

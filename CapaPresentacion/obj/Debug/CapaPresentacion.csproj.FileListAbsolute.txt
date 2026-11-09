@@ -43,3 +43,4 @@ C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaPresentacion\obj\Deb
 C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaPresentacion\obj\Debug\CapaPresentacion.pdb
 C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaPresentacion\bin\Debug\QRCoder.dll
 C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaPresentacion\bin\Debug\QRCoder.xml
+C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaPresentacion\obj\Debug\CapaPresentacion.P_NuevoServicio.resources

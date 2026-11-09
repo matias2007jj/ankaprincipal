@@ -73,11 +73,23 @@
     <Compile Include="P_Extintores.Designer.cs">
       <DependentUpon>P_Extintores.cs</DependentUpon>
     </Compile>
+    <Compile Include="P_HistorialGeneral.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="P_HistorialGeneral.Designer.cs">
+      <DependentUpon>P_HistorialGeneral.cs</DependentUpon>
+    </Compile>
     <Compile Include="P_ImprimirQR.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="P_ImprimirQR.Designer.cs">
       <DependentUpon>P_ImprimirQR.cs</DependentUpon>
+    </Compile>
+    <Compile Include="P_NuevoServicio.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="P_NuevoServicio.Designer.cs">
+      <DependentUpon>P_NuevoServicio.cs</DependentUpon>
     </Compile>
     <Compile Include="P_Principal.cs">
       <SubType>Form</SubType>
@@ -95,6 +107,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="P_Extintores.resx">
       <DependentUpon>P_Extintores.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="P_NuevoServicio.resx">
+      <DependentUpon>P_NuevoServicio.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="P_Principal.resx">
       <DependentUpon>P_Principal.cs</DependentUpon>

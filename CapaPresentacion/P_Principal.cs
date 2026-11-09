@@ -143,8 +143,8 @@ namespace CapaPresentacion
 
         private void btnExtintores_Click(object sender, EventArgs e)
         {
-            openChildForm(new P_Extintores());
-            
+            openChildForm(new P_HistorialGeneral());
+
             btnExtintores.BackColor = Color.OrangeRed;
 
         }
