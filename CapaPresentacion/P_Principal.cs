@@ -4,21 +4,18 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
-
 
 namespace CapaPresentacion
 {
     public partial class P_Principal : Form
     {
-
         private int anchoMaximo;
         private const int ANCHO_MINIMO = 58;
         private const int PASO = 45;
-
 
         [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
         private static extern void ReleaseCapture();
@@ -31,6 +28,14 @@ namespace CapaPresentacion
             InitializeComponent();
         }
 
+
+
+        private void P_Principal_Load(object sender, EventArgs e)
+        {
+            anchoMaximo = PanelMenu.Width;
+        }
+
+        #region Control de Ventana y Arrastre
 
         private void btnSalir_Click(object sender, EventArgs e)
         {
@@ -62,13 +67,15 @@ namespace CapaPresentacion
             SendMessage(this.Handle, 0x112, 0xf012, 0);
         }
 
+        #endregion
 
+        #region Animación Menú Lateral
 
         private void tmOcultarMenu_Tick(object sender, EventArgs e)
         {
             if (PanelMenu.Width - PASO <= ANCHO_MINIMO)
             {
-                PanelMenu.Width = ANCHO_MINIMO; // 🔒 Bloquea el ancho a 60 px
+                PanelMenu.Width = ANCHO_MINIMO;
                 tmOcultarMenu.Enabled = false;
             }
             else
@@ -81,7 +88,7 @@ namespace CapaPresentacion
         {
             if (PanelMenu.Width + PASO >= anchoMaximo)
             {
-                PanelMenu.Width = anchoMaximo; // 🔒 Bloquea el ancho exacto inicial
+                PanelMenu.Width = anchoMaximo;
                 tmMostrarMenu.Enabled = false;
             }
             else
@@ -92,67 +99,75 @@ namespace CapaPresentacion
 
         private void btnMenu_Click(object sender, EventArgs e)
         {
-            // Si el ancho es mayor a 100, asumimos que está expandido y lo ocultamos
             if (PanelMenu.Width > ANCHO_MINIMO + 20)
             {
                 tmMostrarMenu.Enabled = false;
                 tmOcultarMenu.Enabled = true;
+                pbLogo.Visible = false;
             }
-            // Si está colapsado, iniciamos la animación para mostrarlo
             else
             {
                 tmOcultarMenu.Enabled = false;
                 tmMostrarMenu.Enabled = true;
+                pbLogo.Visible = true;
             }
-            
-            if (PanelMenu.Width > ANCHO_MINIMO + 20)
-            {
-                pbLogo.Visible = false; // Oculta el logo cuando el menú está colapsado
-            }
-            else
-            {
-                pbLogo.Visible = true; // Muestra el logo cuando el menú está expandido
-            }
-
-
         }
+
+        #endregion
+
+        #region Navegación Formularios Hijos
 
         public void openChildForm(Form childForm)
         {
-            // Cierra el formulario hijo actual si existe
             if (this.ActiveMdiChild != null)
             {
                 this.ActiveMdiChild.Close();
             }
-            // Configura el formulario hijo
+
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
-            // Agrega el formulario hijo al panel contenedor
+
             this.PanelControlador.Controls.Add(childForm);
             this.PanelControlador.Tag = childForm;
-            // Muestra el formulario hijo
+
             childForm.BringToFront();
             childForm.Show();
         }
 
-        private void P_Principal_Load(object sender, EventArgs e)
+        // Método auxiliar para gestionar el estado visual de los botones del menú
+        private void ResaltarBotonActivo(Button botonActivo)
         {
-            anchoMaximo = PanelMenu.Width;
+            // Restablece el color de fondo de todos los botones dentro de PanelMenu
+            foreach (Control control in PanelMenu.Controls)
+            {
+                // Usamos btn.Name != "btnMenu" para evitar errores de compatibilidad de tipos
+                if (control is Button btn && btn.Name != "btnMenu")
+                {
+                    btn.BackColor = Color.Transparent; // O el color de fondo base del panel
+                }
+            }
+
+            // Destaca únicamente el botón pulsado
+            if (botonActivo != null)
+            {
+                botonActivo.BackColor = Color.OrangeRed;
+            }
         }
 
         private void btnExtintores_Click(object sender, EventArgs e)
         {
             openChildForm(new P_HistorialGeneral());
-
-            btnExtintores.BackColor = Color.OrangeRed;
+            ResaltarBotonActivo((Button)sender);
 
         }
 
         private void btnClientes_Click(object sender, EventArgs e)
         {
             openChildForm(new P_Clientes());
-            btnClientes.BackColor = Color.OrangeRed;
+            ResaltarBotonActivo((Button)sender);
         }
+
+        #endregion
     }
 }
