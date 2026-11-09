@@ -44,6 +44,7 @@
             this.nro_serie = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nro_interno = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.sede = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ubicacion = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tipo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.capacidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.marca = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -87,6 +88,7 @@
             this.nro_serie,
             this.nro_interno,
             this.sede,
+            this.ubicacion,
             this.tipo,
             this.capacidad,
             this.marca,
@@ -222,6 +224,13 @@
             this.sede.Name = "sede";
             this.sede.Width = 59;
             // 
+            // ubicacion
+            // 
+            this.ubicacion.DataPropertyName = "ubicacion";
+            this.ubicacion.HeaderText = "Ubicacion";
+            this.ubicacion.Name = "ubicacion";
+            this.ubicacion.Width = 87;
+            // 
             // tipo
             // 
             this.tipo.DataPropertyName = "tipo";
@@ -353,6 +362,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn nro_serie;
         private System.Windows.Forms.DataGridViewTextBoxColumn nro_interno;
         private System.Windows.Forms.DataGridViewTextBoxColumn sede;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ubicacion;
         private System.Windows.Forms.DataGridViewTextBoxColumn tipo;
         private System.Windows.Forms.DataGridViewTextBoxColumn capacidad;
         private System.Windows.Forms.DataGridViewTextBoxColumn marca;

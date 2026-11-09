@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="E_Catalogos.cs" />
     <Compile Include="E_Cliente.cs" />
+    <Compile Include="E_Documento.cs" />
     <Compile Include="E_Extintor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

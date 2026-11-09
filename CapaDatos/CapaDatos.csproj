@@ -45,7 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="D_Catalogos.cs" />
     <Compile Include="D_Clientes.cs" />
+    <Compile Include="D_Documentos.cs" />
     <Compile Include="D_Extintores.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
