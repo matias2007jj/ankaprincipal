@@ -15,3 +15,14 @@ C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaDatos\obj\Debug\Capa
 C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.csproj.Up2Date
 C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.dll
 C:\Users\kyhara\source\repos\matias2007jj\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.pdb
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\bin\Debug\CapaDatos.dll
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\bin\Debug\CapaDatos.pdb
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\bin\Debug\CapaEntidad.dll
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\bin\Debug\Newtonsoft.Json.dll
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\bin\Debug\CapaEntidad.pdb
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\bin\Debug\Newtonsoft.Json.xml
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.csproj.AssemblyReference.cache
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.csproj.CoreCompileInputs.cache
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.csproj.Up2Date
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.dll
+C:\Users\FAMILIA ACOSTA\source\repos\ankaprincipal\CapaDatos\obj\Debug\CapaDatos.pdb

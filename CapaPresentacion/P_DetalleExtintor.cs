@@ -15,6 +15,39 @@ namespace CapaPresentacion
 {
     public partial class P_DetalleExtintor : Form
     {
+
+        private bool ValidarCampos()
+        {
+            // Invocación a la clase validadora
+            ResultadoValidacion resultado = ValidadorExtintor.ValidarFormulario(
+                txtNroSerie,
+                cboEstado,
+                cboTipoExtintor,
+                cboCapacidad,
+                cboMarca,
+                cboSede,
+                txtAnioFabricacion
+            );
+
+            // Si hay un error, muestra el mensaje y pone el foco en el control que falló
+            if (!resultado.EsValido)
+            {
+                MessageBox.Show(resultado.Mensaje, "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                if (resultado.ControlConError != null)
+                {
+                    resultado.ControlConError.Focus();
+                    if (resultado.ControlConError is TextBox txt)
+                    {
+                        txt.SelectAll();
+                    }
+                }
+                return false;
+            }
+
+            return true;
+        }
+
         private E_Extintor extintorActual = null;
         private string codigoClienteActual = "";
 
@@ -67,8 +100,19 @@ namespace CapaPresentacion
 
         private async void P_DetalleExtintor_Load(object sender, EventArgs e)
         {
-            ConfigurarFormatosFecha();
+            // --- APLICAR REGLAS DE INTERFAZ DESDE LA CLASE VALIDADORA ---
 
+            // 1. Bloquea la edición manual en todos los ComboBox
+            ValidadorExtintor.ConfigurarSoloSeleccion(cboEstado, cboTipoExtintor, cboCapacidad, cboMarca, cboSede, cboTipoDocumento);
+
+            // 2. Permite ÚNICAMENTE números en estos campos de texto
+            ValidadorExtintor.PermitirSoloNumeros(txtNroSerie, txtNroInterno, txtAnioFabricacion, txtNroCertificado);
+
+            // 3. Activa el salto a la siguiente casilla al presionar ENTER
+            ValidadorExtintor.ActivarNavegacionEnter(this);
+
+            // --- CARGA DE DATOS NORMAL ---
+            ConfigurarFormatosFecha();
             CargarComboTiposDocumento();
             await CargarCatalogosGenerales();
             await CargarSedesCliente();
@@ -452,12 +496,8 @@ namespace CapaPresentacion
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtNroSerie.Text))
-            {
-                MessageBox.Show("El número de serie es obligatorio.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtNroSerie.Focus();
-                return;
-            }
+            // Invocar la validación de la clase antes de continuar
+            if (!ValidarCampos()) return;
 
             try
             {
@@ -473,7 +513,6 @@ namespace CapaPresentacion
                     }
                 }
 
-                // Extraer la sede retenida en el ComboBox para no violar la Foreign Key
                 string valorSede = cboSede.SelectedValue != null ? cboSede.SelectedValue.ToString() : cboSede.Text;
 
                 var datosExtintor = new
@@ -539,5 +578,10 @@ namespace CapaPresentacion
         }
 
         #endregion
+
+        private void P_DetalleExtintor_Load_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }

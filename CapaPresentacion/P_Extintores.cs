@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClosedXML.Excel;
 
 namespace CapaPresentacion
 {
@@ -20,15 +21,17 @@ namespace CapaPresentacion
         private List<E_Extintor> listaCompletaExtintores = new List<E_Extintor>();
         private string Texto = "Buscar por NºSerie, Codigo.U, Marca, Sede o Tipo";
         private string clienteFiltro = null;
+        private string clienteNombre = null;
 
         public P_Extintores()
         {
             InitializeComponent();
         }
 
-        public P_Extintores(string codigoCliente) : this()
+        public P_Extintores(string codigoCliente, string nombreCliente = null) : this()
         {
             this.clienteFiltro = codigoCliente;
+            this.clienteNombre = nombreCliente;
         }
 
         private async void P_Extintores_Load(object sender, EventArgs e)
@@ -145,6 +148,7 @@ namespace CapaPresentacion
 
                 dtgv_Extintores.DataSource = null;
                 dtgv_Extintores.DataSource = listaCompletaExtintores;
+                ActualizarContador();
             }
             catch (Exception ex)
             {
@@ -235,6 +239,7 @@ namespace CapaPresentacion
 
             dtgv_Extintores.DataSource = null;
             dtgv_Extintores.DataSource = listaFiltrada;
+            ActualizarContador();
         }
 
         #endregion
@@ -350,5 +355,201 @@ namespace CapaPresentacion
         }
 
         #endregion
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ActualizarContador()
+        {
+            int total = dtgv_Extintores.Rows.Count;
+            lbl_Extintores.Text = $"Total Extintores: {total}";
+        }
+
+        private void btn_ExportarExcel_Click(object sender, EventArgs e)
+        {
+            if (dtgv_Extintores.Rows.Count == 0)
+            {
+                MessageBox.Show("No hay datos cargados para exportar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Usar el Nombre Comercial si existe, de lo contrario clienteFiltro o GENERAL
+            string nombreMostrar = !string.IsNullOrWhiteSpace(clienteNombre)
+                ? clienteNombre.ToUpper()
+                : (!string.IsNullOrWhiteSpace(clienteFiltro) ? clienteFiltro : "TODOS LOS CLIENTES");
+
+            // Limpiar caracteres inválidos para el nombre de archivo
+            string nombreArchivoSanitizado = string.Join("_", nombreMostrar.Split(System.IO.Path.GetInvalidFileNameChars()));
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Archivo de Excel (*.xlsx)|*.xlsx",
+                FileName = $"Reporte_Extintores_{nombreArchivoSanitizado}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    using (XLWorkbook workbook = new XLWorkbook())
+                    {
+                        var worksheet = workbook.Worksheets.Add("Extintores");
+
+                        // 1. TÍTULO Y NOMBRE COMERCIAL DEL CLIENTE
+                        worksheet.Cell(1, 1).Value = "ANKA FIRE - REPORTE DE EXTINTORES";
+                        worksheet.Cell(1, 1).Style.Font.Bold = true;
+                        worksheet.Cell(1, 1).Style.Font.FontSize = 14;
+
+                        worksheet.Cell(2, 1).Value = $"CLIENTE: {nombreMostrar}";
+                        worksheet.Cell(2, 1).Style.Font.Bold = true;
+                        worksheet.Cell(2, 1).Style.Font.FontSize = 11;
+                        worksheet.Cell(2, 1).Style.Font.FontColor = XLColor.FromArgb(227, 6, 19); // Rojo corporativo
+
+                        // 2. ENCABEZADOS DE LA TABLA (Fila 4)
+                        int filaInicioTabla = 4;
+                        int colIndex = 1;
+                        for (int i = 0; i < dtgv_Extintores.Columns.Count; i++)
+                        {
+                            var col = dtgv_Extintores.Columns[i];
+                            if (col.Visible && !(col is DataGridViewButtonColumn))
+                            {
+                                var cell = worksheet.Cell(filaInicioTabla, colIndex);
+                                cell.Value = col.HeaderText;
+                                cell.Style.Font.Bold = true;
+                                cell.Style.Fill.BackgroundColor = XLColor.FromArgb(227, 6, 19);
+                                cell.Style.Font.FontColor = XLColor.White;
+                                colIndex++;
+                            }
+                        }
+
+                        // 3. FILAS DE DATOS
+                        for (int r = 0; r < dtgv_Extintores.Rows.Count; r++)
+                        {
+                            colIndex = 1;
+                            for (int c = 0; c < dtgv_Extintores.Columns.Count; c++)
+                            {
+                                var col = dtgv_Extintores.Columns[c];
+                                if (col.Visible && !(col is DataGridViewButtonColumn))
+                                {
+                                    object valor = dtgv_Extintores.Rows[r].Cells[c].Value;
+                                    worksheet.Cell(r + filaInicioTabla + 1, colIndex).Value = valor?.ToString() ?? "";
+                                    colIndex++;
+                                }
+                            }
+                        }
+
+                        // 4. ALINEACIÓN Y FORMATO DE CELDAS
+                        int totalColumnas = colIndex - 1;
+                        int ultimaFila = filaInicioTabla + dtgv_Extintores.Rows.Count;
+
+                        var rangoTabla = worksheet.Range(filaInicioTabla, 1, ultimaFila, totalColumnas);
+                        rangoTabla.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        rangoTabla.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                        // Rejilla de bordes finos
+                        rangoTabla.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        rangoTabla.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                        rangoTabla.Style.Border.OutsideBorderColor = XLColor.LightGray;
+                        rangoTabla.Style.Border.InsideBorderColor = XLColor.LightGray;
+
+                        // 5. AUTOAJUSTAR ANCHO DE COLUMNAS
+                        worksheet.Columns().AdjustToContents();
+
+                        workbook.SaveAs(saveFileDialog.FileName);
+                    }
+
+                    MessageBox.Show($"Archivo Excel generado con éxito para {nombreMostrar}.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al exportar a Excel: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void btn_ImportarExcel_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Archivos de Excel (*.xlsx;*.xls)|*.xlsx;*.xls",
+                Title = "Seleccionar Excel de Extintores"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    this.UseWaitCursor = true;
+                    List<E_Extintor> nuevosExtintores = new List<E_Extintor>();
+
+                    using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
+                    {
+                        IXLWorksheet worksheet = workbook.Worksheet(1); // Lee la primera plantilla/hoja
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Salta los encabezados (Fila 1)
+
+                        foreach (var row in rows)
+                        {
+                            E_Extintor extintor = new E_Extintor
+                            {
+                                nro_serie = row.Cell(1).GetValue<string>().Trim(),
+                                nro_interno = row.Cell(2).GetValue<string>().Trim(),
+                                sede = row.Cell(3).GetValue<string>().Trim(),
+                                ubicacion = row.Cell(4).GetValue<string>().Trim(),
+                                tipo = row.Cell(5).GetValue<string>().Trim(),
+                                capacidad = row.Cell(6).GetValue<string>().Trim(),
+                                marca = row.Cell(7).GetValue<string>().Trim(),
+                                anio_fabricacion = row.Cell(8).GetValue<string>().Trim(),
+                                eje_servicio = FormatearMesAnio(row.Cell(9).GetValue<string>()),
+                                proximo_mantenimiento = FormatearMesAnio(row.Cell(10).GetValue<string>()),
+                                fecha_prueba_hidrostatica = FormatearMesAnio(row.Cell(11).GetValue<string>()),
+                                vencimiento_ph = FormatearMesAnio(row.Cell(12).GetValue<string>()),
+                                estado = string.IsNullOrWhiteSpace(row.Cell(13).GetValue<string>()) ? "Vigente" : row.Cell(13).GetValue<string>().Trim()
+                            };
+
+                            // Asigna el filtro del cliente actual si existe
+                            extintor.codigo_cliente = clienteFiltro;
+
+                            // Solo agregar si la fila contiene al menos un N° Serie o Código
+                            if (!string.IsNullOrWhiteSpace(extintor.nro_serie) || !string.IsNullOrWhiteSpace(extintor.codigo_u))
+                            {
+                                nuevosExtintores.Add(extintor);
+                            }
+                        }
+                    }
+
+                    if (nuevosExtintores.Count > 0)
+                    {
+                        // Unir los nuevos registros a la lista principal
+                        listaCompletaExtintores.AddRange(nuevosExtintores);
+
+                        // Refrescar la vista de la tabla
+                        dtgv_Extintores.DataSource = null;
+                        dtgv_Extintores.DataSource = listaCompletaExtintores;
+                        ActualizarContador();
+
+                        MessageBox.Show($"Se importaron {nuevosExtintores.Count} extintores correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se encontraron registros válidos en el archivo Excel.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al leer el archivo Excel: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    this.UseWaitCursor = false;
+                }
+            }
+        }
+
+        private void lbl_Extintores_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -48,8 +48,6 @@
             this.button4 = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
             this.btnClientes = new System.Windows.Forms.Button();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.btnExtintores = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
             this.btnMenu = new System.Windows.Forms.PictureBox();
@@ -58,6 +56,8 @@
             this.tmMostrarMenu = new System.Windows.Forms.Timer(this.components);
             this.PanelControlador = new System.Windows.Forms.Panel();
             this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb = new System.Windows.Forms.PictureBox();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.btnExtintores = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.PanelMenu.SuspendLayout();
@@ -75,8 +75,8 @@
             this.panel1.Controls.Add(this.panel8);
             this.panel1.Controls.Add(this.btnMinimizar);
             this.panel1.Controls.Add(this.btnSalir);
-            this.panel1.Controls.Add(this.btnMaximizar);
             this.panel1.Controls.Add(this.btnRestaurar);
+            this.panel1.Controls.Add(this.btnMaximizar);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -93,7 +93,7 @@
             this.label1.Location = new System.Drawing.Point(49, 7);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(90, 19);
+            this.label1.Size = new System.Drawing.Size(117, 24);
             this.label1.TabIndex = 15;
             this.label1.Text = "ANAKA FIRE";
             // 
@@ -101,7 +101,7 @@
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.Location = new System.Drawing.Point(4, -1);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(52, 37);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -341,38 +341,6 @@
             this.btnClientes.UseVisualStyleBackColor = false;
             this.btnClientes.Click += new System.EventHandler(this.btnClientes_Click);
             // 
-            // panel3
-            // 
-            this.panel3.BackColor = System.Drawing.Color.OrangeRed;
-            this.panel3.Location = new System.Drawing.Point(0, 289);
-            this.panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(5, 62);
-            this.panel3.TabIndex = 4;
-            // 
-            // btnExtintores
-            // 
-            this.btnExtintores.BackColor = System.Drawing.Color.Firebrick;
-            this.btnExtintores.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnExtintores.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnExtintores.FlatAppearance.BorderSize = 0;
-            this.btnExtintores.FlatAppearance.MouseDownBackColor = System.Drawing.Color.OrangeRed;
-            this.btnExtintores.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Firebrick;
-            this.btnExtintores.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnExtintores.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold);
-            this.btnExtintores.ForeColor = System.Drawing.Color.White;
-            this.btnExtintores.Image = ((System.Drawing.Image)(resources.GetObject("btnExtintores.Image")));
-            this.btnExtintores.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnExtintores.Location = new System.Drawing.Point(0, 289);
-            this.btnExtintores.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.btnExtintores.Name = "btnExtintores";
-            this.btnExtintores.Size = new System.Drawing.Size(263, 62);
-            this.btnExtintores.TabIndex = 3;
-            this.btnExtintores.Text = "       Extintores";
-            this.btnExtintores.UseVisualStyleBackColor = false;
-            this.btnExtintores.Visible = false;
-            this.btnExtintores.Click += new System.EventHandler(this.btnExtintores_Click);
-            // 
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.OrangeRed;
@@ -456,6 +424,38 @@
             this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb.TabIndex = 0;
             this.object_e803de1a_11dc_4d1b_b3d5_b6e138705ceb.TabStop = false;
             // 
+            // panel3
+            // 
+            this.panel3.BackColor = System.Drawing.Color.OrangeRed;
+            this.panel3.Location = new System.Drawing.Point(0, 289);
+            this.panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(5, 62);
+            this.panel3.TabIndex = 4;
+            // 
+            // btnExtintores
+            // 
+            this.btnExtintores.BackColor = System.Drawing.Color.Firebrick;
+            this.btnExtintores.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btnExtintores.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnExtintores.FlatAppearance.BorderSize = 0;
+            this.btnExtintores.FlatAppearance.MouseDownBackColor = System.Drawing.Color.OrangeRed;
+            this.btnExtintores.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Firebrick;
+            this.btnExtintores.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExtintores.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnExtintores.ForeColor = System.Drawing.Color.White;
+            this.btnExtintores.Image = ((System.Drawing.Image)(resources.GetObject("btnExtintores.Image")));
+            this.btnExtintores.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnExtintores.Location = new System.Drawing.Point(0, 289);
+            this.btnExtintores.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnExtintores.Name = "btnExtintores";
+            this.btnExtintores.Size = new System.Drawing.Size(263, 62);
+            this.btnExtintores.TabIndex = 3;
+            this.btnExtintores.Text = "       Extintores";
+            this.btnExtintores.UseVisualStyleBackColor = false;
+            this.btnExtintores.Visible = false;
+            this.btnExtintores.Click += new System.EventHandler(this.btnExtintores_Click);
+            // 
             // P_Principal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -500,8 +500,6 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Button btnClientes;
-        private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Button btnExtintores;
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Panel panel6;
@@ -513,6 +511,8 @@
         private System.Windows.Forms.PictureBox pblogo2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Button btnExtintores;
     }
 }
 
