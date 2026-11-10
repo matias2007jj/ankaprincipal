@@ -42,14 +42,13 @@ namespace CapaPresentacion
             txtBuscar.ForeColor = Color.Gray;
             dtgv_Extintores.AutoGenerateColumns = false;
 
-            // Asegurar suscripción de eventos
+            // Suscripción de eventos
             dtgv_Extintores.CellContentClick -= dtgv_Extintores_CellContentClick;
             dtgv_Extintores.CellContentClick += dtgv_Extintores_CellContentClick;
 
             dtgv_Extintores.CellFormatting -= dtgv_Extintores_CellFormatting;
             dtgv_Extintores.CellFormatting += dtgv_Extintores_CellFormatting;
 
-            // Evento para capturar el Enter enviado por Barcode to PC o lectoras QR
             txtBuscar.KeyDown -= txtBuscar_KeyDown;
             txtBuscar.KeyDown += txtBuscar_KeyDown;
 
@@ -526,7 +525,6 @@ namespace CapaPresentacion
                     {
                         var worksheet = workbook.Worksheets.Add("Extintores");
 
-                        // 1. TÍTULO Y NOMBRE COMERCIAL DEL CLIENTE
                         worksheet.Cell(1, 1).Value = "ANKA FIRE - REPORTE DE EXTINTORES";
                         worksheet.Cell(1, 1).Style.Font.Bold = true;
                         worksheet.Cell(1, 1).Style.Font.FontSize = 14;
@@ -536,7 +534,6 @@ namespace CapaPresentacion
                         worksheet.Cell(2, 1).Style.Font.FontSize = 11;
                         worksheet.Cell(2, 1).Style.Font.FontColor = XLColor.FromArgb(227, 6, 19);
 
-                        // 2. ENCABEZADOS DE LA TABLA (Fila 4)
                         int filaInicioTabla = 4;
                         int colIndex = 1;
                         for (int i = 0; i < dtgv_Extintores.Columns.Count; i++)
@@ -553,7 +550,6 @@ namespace CapaPresentacion
                             }
                         }
 
-                        // 3. FILAS DE DATOS
                         for (int r = 0; r < dtgv_Extintores.Rows.Count; r++)
                         {
                             colIndex = 1;
@@ -569,7 +565,6 @@ namespace CapaPresentacion
                             }
                         }
 
-                        // 4. ALINEACIÓN Y FORMATO DE CELDAS
                         int totalColumnas = colIndex - 1;
                         int ultimaFila = filaInicioTabla + dtgv_Extintores.Rows.Count;
 
@@ -582,7 +577,6 @@ namespace CapaPresentacion
                         rangoTabla.Style.Border.OutsideBorderColor = XLColor.LightGray;
                         rangoTabla.Style.Border.InsideBorderColor = XLColor.LightGray;
 
-                        // 5. AUTOAJUSTAR ANCHO DE COLUMNAS
                         worksheet.Columns().AdjustToContents();
 
                         workbook.SaveAs(saveFileDialog.FileName);
@@ -597,7 +591,7 @@ namespace CapaPresentacion
             }
         }
 
-        private void btn_ImportarExcel_Click(object sender, EventArgs e)
+        private async void btn_ImportarExcel_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
@@ -611,49 +605,138 @@ namespace CapaPresentacion
                 {
                     this.UseWaitCursor = true;
                     List<E_Extintor> nuevosExtintores = new List<E_Extintor>();
+                    int erroresGuardado = 0;
 
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
                         IXLWorksheet worksheet = workbook.Worksheet(1);
-                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+                        var rows = worksheet.RangeUsed().RowsUsed();
 
-                        foreach (var row in rows)
+                        // 1. DETECTAR EN QUÉ COLUMNA COMIENZAN LOS DATOS (Columna A/1 o Columna C/3)
+                        int colInicio = 3; // Por defecto columna C
+                        foreach (var row in rows.Take(10))
                         {
-                            E_Extintor extintor = new E_Extintor
+                            for (int c = 1; c <= 5; c++)
                             {
-                                nro_serie = row.Cell(1).GetValue<string>().Trim(),
-                                nro_interno = row.Cell(2).GetValue<string>().Trim(),
-                                sede = row.Cell(3).GetValue<string>().Trim(),
-                                ubicacion = row.Cell(4).GetValue<string>().Trim(),
-                                tipo = row.Cell(5).GetValue<string>().Trim(),
-                                capacidad = row.Cell(6).GetValue<string>().Trim(),
-                                marca = row.Cell(7).GetValue<string>().Trim(),
-                                anio_fabricacion = row.Cell(8).GetValue<string>().Trim(),
-                                eje_servicio = FormatearMesAnio(row.Cell(9).GetValue<string>()),
-                                proximo_mantenimiento = FormatearMesAnio(row.Cell(10).GetValue<string>()),
-                                fecha_prueba_hidrostatica = FormatearMesAnio(row.Cell(11).GetValue<string>()),
-                                vencimiento_ph = FormatearMesAnio(row.Cell(12).GetValue<string>()),
-                                estado = string.IsNullOrWhiteSpace(row.Cell(13).GetValue<string>()) ? "Vigente" : row.Cell(13).GetValue<string>().Trim()
-                            };
+                                string val = row.Cell(c).GetValue<string>().Trim();
+                                if (val.Equals("Nº Serie", StringComparison.OrdinalIgnoreCase) ||
+                                    val.Equals("N° Serie", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    colInicio = c;
+                                    break;
+                                }
+                            }
+                        }
 
-                            extintor.codigo_cliente = clienteFiltro;
+                        // 2. USO DE HTTPCLIENT PARA ENVIAR Y ASIGNAR / ACTUALIZAR REGISTROS
+                        using (HttpClient client = new HttpClient())
+                        {
+                            client.Timeout = TimeSpan.FromSeconds(15);
 
-                            if (!string.IsNullOrWhiteSpace(extintor.nro_serie) || !string.IsNullOrWhiteSpace(extintor.codigo_u))
+                            foreach (var row in rows)
                             {
-                                nuevosExtintores.Add(extintor);
+                                string celdaSerie = row.Cell(colInicio).GetValue<string>().Trim();
+                                string celdaInterno = row.Cell(colInicio + 1).GetValue<string>().Trim();
+                                string celdaSede = row.Cell(colInicio + 2).GetValue<string>().Trim();
+
+                                // Descartar títulos, filas vacías y cabeceras
+                                if (string.IsNullOrWhiteSpace(celdaSerie) && string.IsNullOrWhiteSpace(celdaInterno) && string.IsNullOrWhiteSpace(celdaSede))
+                                    continue;
+
+                                if (celdaSerie.StartsWith("ANKA FIRE", StringComparison.OrdinalIgnoreCase) ||
+                                    celdaSerie.StartsWith("CLIENTE:", StringComparison.OrdinalIgnoreCase) ||
+                                    celdaSerie.Equals("Nº Serie", StringComparison.OrdinalIgnoreCase) ||
+                                    celdaSerie.Equals("N° Serie", StringComparison.OrdinalIgnoreCase) ||
+                                    celdaSerie.Equals("Codigo.U", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    continue;
+                                }
+
+                                // 3. EXTRAER CÓDIGO ÚNICO EXISTENTE (Si la celda contiene AF-EXT-XXXXXX)
+                                int? idExtintorExistente = null;
+                                int colCodigoU = colInicio > 1 ? colInicio - 1 : 1;
+                                string codigoU_Excel = row.Cell(colCodigoU).GetValue<string>().Trim();
+
+                                if (!string.IsNullOrWhiteSpace(codigoU_Excel) && codigoU_Excel.StartsWith("AF-EXT-", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string idStr = codigoU_Excel.Substring(7).TrimStart('0');
+                                    if (int.TryParse(idStr, out int idParseado))
+                                    {
+                                        idExtintorExistente = idParseado; // Asigna ID para realizar UPDATE
+                                    }
+                                }
+
+                                // 4. CONSTRUIR ENTIDAD DE EXTINTOR
+                                E_Extintor extintor = new E_Extintor
+                                {
+                                    id = idExtintorExistente ?? 0, // 0 = INSERT (crea nuevo único), >0 = UPDATE
+                                    codigo_u = idExtintorExistente.HasValue ? codigoU_Excel : "",
+                                    codigo_cliente = string.IsNullOrWhiteSpace(clienteFiltro) ? "GENERAL" : clienteFiltro,
+                                    nro_serie = celdaSerie,
+                                    nro_interno = string.IsNullOrWhiteSpace(celdaInterno) ? "S/N" : celdaInterno,
+                                    sede = celdaSede,
+                                    ubicacion = row.Cell(colInicio + 3).GetValue<string>().Trim(),
+                                    tipo = row.Cell(colInicio + 4).GetValue<string>().Trim(),
+                                    capacidad = row.Cell(colInicio + 5).GetValue<string>().Trim(),
+                                    marca = row.Cell(colInicio + 6).GetValue<string>().Trim(),
+                                    anio_fabricacion = row.Cell(colInicio + 7).GetValue<string>().Trim(),
+                                    eje_servicio = ObtenerFechaFormateada(row.Cell(colInicio + 8)),
+                                    proximo_mantenimiento = ObtenerFechaFormateada(row.Cell(colInicio + 9)),
+                                    fecha_prueba_hidrostatica = ObtenerFechaFormateada(row.Cell(colInicio + 10)),
+                                    vencimiento_ph = ObtenerFechaFormateada(row.Cell(colInicio + 11)),
+                                    estado = string.IsNullOrWhiteSpace(row.Cell(colInicio + 12).GetValue<string>())
+                                             ? "Vigente"
+                                             : row.Cell(colInicio + 12).GetValue<string>().Trim()
+                                };
+
+                                // 5. GUARDAR EN MYSQL VÍA API PHP (Recibe y asigna el codigo_u generado)
+                                try
+                                {
+                                    string jsonPayload = JsonConvert.SerializeObject(extintor);
+                                    var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                                    HttpResponseMessage response = await client.PostAsync("https://intranet.ankafire.com.pe/guardar_extintor.php", content);
+
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                                        dynamic res = JsonConvert.DeserializeObject(jsonResponse);
+
+                                        if (res != null && (bool)res.exito)
+                                        {
+                                            extintor.codigo_u = res.codigo_u != null ? res.codigo_u.ToString() : extintor.codigo_u;
+                                            nuevosExtintores.Add(extintor);
+                                        }
+                                        else
+                                        {
+                                            erroresGuardado++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        erroresGuardado++;
+                                    }
+                                }
+                                catch
+                                {
+                                    erroresGuardado++;
+                                }
                             }
                         }
                     }
 
+                    // 6. REFLEJAR REGISTROS Y NOTIFICAR
                     if (nuevosExtintores.Count > 0)
                     {
-                        listaCompletaExtintores.AddRange(nuevosExtintores);
+                        await CargarDatosWeb(clienteFiltro);
 
-                        dtgv_Extintores.DataSource = null;
-                        dtgv_Extintores.DataSource = listaCompletaExtintores;
-                        ActualizarContador();
+                        string mensaje = $"Se importaron {nuevosExtintores.Count} extintores en sus campos correspondientes.";
+                        if (erroresGuardado > 0)
+                        {
+                            mensaje += $"\n({erroresGuardado} registros no se pudieron guardar en la base de datos).";
+                        }
 
-                        MessageBox.Show($"Se importaron {nuevosExtintores.Count} extintores correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(mensaje, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
@@ -662,7 +745,7 @@ namespace CapaPresentacion
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error al leer el archivo Excel: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error al procesar el archivo Excel: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
@@ -671,9 +754,23 @@ namespace CapaPresentacion
             }
         }
 
+        private string ObtenerFechaFormateada(IXLCell cell)
+        {
+            if (cell == null || cell.IsEmpty()) return "";
+
+            if (cell.DataType == XLDataType.DateTime)
+            {
+                DateTime fecha = cell.GetDateTime();
+                string mes = fecha.ToString("MMM", new CultureInfo("es-ES")).Replace(".", "").ToUpper();
+                return $"{mes}.-{fecha.Year}";
+            }
+
+            return FormatearMesAnio(cell.GetValue<string>().Trim());
+        }
+
         private void lbl_Extintores_Click(object sender, EventArgs e)
         {
 
         }
-    }
+     }
 }
