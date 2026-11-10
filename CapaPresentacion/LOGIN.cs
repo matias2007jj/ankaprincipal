@@ -100,5 +100,11 @@ namespace CapaPresentacion
         }
 
         #endregion
+
+        private void panel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            ReleaseCapture();
+            SendMessage(this.Handle, 0x112, 0xf012, 0);
+        }
     }
 }

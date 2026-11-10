@@ -42,6 +42,20 @@ namespace CapaPresentacion
             txtBuscar.ForeColor = Color.Gray;
             dtgv_Extintores.AutoGenerateColumns = false;
 
+            // Actualizar el texto del label con el nombre del cliente recibido
+            if (!string.IsNullOrWhiteSpace(clienteNombre))
+            {
+                lbl_Cliente.Text = $"Extintores - {clienteNombre}";
+            }
+            else if (!string.IsNullOrWhiteSpace(clienteFiltro))
+            {
+                lbl_Cliente.Text = $"Extintores - {clienteFiltro}";
+            }
+            else
+            {
+                lbl_Cliente.Text = "Extintores - General";
+            }
+
             // Suscripción de eventos
             dtgv_Extintores.CellContentClick -= dtgv_Extintores_CellContentClick;
             dtgv_Extintores.CellContentClick += dtgv_Extintores_CellContentClick;
@@ -135,6 +149,10 @@ namespace CapaPresentacion
                 else if (header.Contains("mantenimiento") || header.Contains("prox"))
                 {
                     col.DataPropertyName = "proximo_mantenimiento";
+                }
+                else if (header.Contains("venc") && header.Contains("prueba"))
+                {
+                    col.DataPropertyName = "vencimiento_ph";
                 }
                 else if (header.Contains("prueba h"))
                 {
@@ -249,11 +267,13 @@ namespace CapaPresentacion
         {
             if (string.IsNullOrWhiteSpace(fechaTexto)) return "";
 
+            // Si ya viene con formato abreviado (ej. "OCT-2025" o "OCT.-2025")
             if (fechaTexto.Contains("-") && fechaTexto.Length <= 9 && !char.IsDigit(fechaTexto[0]))
             {
                 return fechaTexto.ToUpper();
             }
 
+            // Si viene en formato de fecha estándar de MySQL (ej. "2025-10-01")
             if (DateTime.TryParse(fechaTexto, out DateTime fechaParsed))
             {
                 string mesAbreviado = fechaParsed.ToString("MMM", new CultureInfo("es-ES")).Replace(".", "").ToUpper();
@@ -612,8 +632,7 @@ namespace CapaPresentacion
                         IXLWorksheet worksheet = workbook.Worksheet(1);
                         var rows = worksheet.RangeUsed().RowsUsed();
 
-                        // 1. DETECTAR EN QUÉ COLUMNA COMIENZAN LOS DATOS (Columna A/1 o Columna C/3)
-                        int colInicio = 3; // Por defecto columna C
+                        int colInicio = 3;
                         foreach (var row in rows.Take(10))
                         {
                             for (int c = 1; c <= 5; c++)
@@ -628,68 +647,128 @@ namespace CapaPresentacion
                             }
                         }
 
-                        // 2. USO DE HTTPCLIENT PARA ENVIAR Y ASIGNAR / ACTUALIZAR REGISTROS
+                        // Listas y conjuntos para validación previa
+                        List<E_Extintor> extintoresAProcesar = new List<E_Extintor>();
+                        HashSet<string> seriesEnArchivo = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                        HashSet<string> seriesExistentesBD = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var ext in listaCompletaExtintores)
+                        {
+                            if (!string.IsNullOrWhiteSpace(ext.nro_serie))
+                            {
+                                seriesExistentesBD.Add(ext.nro_serie.Trim());
+                            }
+                        }
+
+                        // 1. FASE DE VALIDACIÓN: Revisar todo el archivo antes de enviar nada
+                        foreach (var row in rows)
+                        {
+                            string celdaSerie = row.Cell(colInicio).GetValue<string>().Trim();
+                            string celdaInterno = row.Cell(colInicio + 1).GetValue<string>().Trim();
+                            string celdaSede = row.Cell(colInicio + 2).GetValue<string>().Trim();
+
+                            if (string.IsNullOrWhiteSpace(celdaSerie) && string.IsNullOrWhiteSpace(celdaInterno) && string.IsNullOrWhiteSpace(celdaSede))
+                                continue;
+
+                            if (celdaSerie.StartsWith("ANKA FIRE", StringComparison.OrdinalIgnoreCase) ||
+                                celdaSerie.StartsWith("CLIENTE:", StringComparison.OrdinalIgnoreCase) ||
+                                celdaSerie.Equals("Nº Serie", StringComparison.OrdinalIgnoreCase) ||
+                                celdaSerie.Equals("N° Serie", StringComparison.OrdinalIgnoreCase) ||
+                                celdaSerie.Equals("Codigo.U", StringComparison.OrdinalIgnoreCase))
+                            {
+                                continue;
+                            }
+
+                            // Validar si el número de serie se repite DENTRO del propio archivo Excel
+                            if (seriesEnArchivo.Contains(celdaSerie))
+                            {
+                                MessageBox.Show($"El número de serie '{celdaSerie}' está duplicado dentro del archivo Excel.\n\nLa importación ha sido cancelada por completo y no se guardó ningún registro.",
+                                                  "Error de Duplicidad", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.UseWaitCursor = false;
+                                return; // Cancela absolutamente todo antes de guardar
+                            }
+                            seriesEnArchivo.Add(celdaSerie);
+
+                            int? idExtintorExistente = null;
+                            int colCodigoU = colInicio > 1 ? colInicio - 1 : 1;
+                            string codigoU_Excel = row.Cell(colCodigoU).GetValue<string>().Trim();
+
+                            if (!string.IsNullOrWhiteSpace(codigoU_Excel) && codigoU_Excel.StartsWith("AF-EXT-", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string idStr = codigoU_Excel.Substring(7).TrimStart('0');
+                                if (int.TryParse(idStr, out int idParseado))
+                                {
+                                    idExtintorExistente = idParseado;
+                                }
+                            }
+
+                            // Validar si ya existe en la base de datos (y no es el mismo que se está actualizando)
+                            if (!idExtintorExistente.HasValue && seriesExistentesBD.Contains(celdaSerie))
+                            {
+                                MessageBox.Show($"El número de serie '{celdaSerie}' ya se encuentra registrado en el sistema.\n\nLa importación ha sido cancelada.",
+                                                  "Error de Duplicidad", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.UseWaitCursor = false;
+                                return;
+                            }
+
+                            // Procesamiento de fechas
+                            string fechaEjecucionStr = ObtenerFechaFormateada(row.Cell(colInicio + 8));
+                            string fechaPruebaHStr = ObtenerFechaFormateada(row.Cell(colInicio + 10));
+
+                            if (string.IsNullOrWhiteSpace(fechaPruebaHStr)) fechaPruebaHStr = fechaEjecucionStr;
+                            if (string.IsNullOrWhiteSpace(fechaEjecucionStr)) fechaEjecucionStr = fechaPruebaHStr;
+
+                            string proxMantenimientoStr = ObtenerFechaFormateada(row.Cell(colInicio + 9));
+                            if (string.IsNullOrWhiteSpace(proxMantenimientoStr) && !string.IsNullOrWhiteSpace(fechaEjecucionStr))
+                            {
+                                if (DateTime.TryParse(fechaEjecucionStr, out DateTime dtProx))
+                                {
+                                    proxMantenimientoStr = dtProx.AddYears(1).ToString("yyyy-MM-dd");
+                                }
+                            }
+
+                            string vencimientoPHStr = ObtenerFechaFormateada(row.Cell(colInicio + 11));
+                            if (string.IsNullOrWhiteSpace(vencimientoPHStr))
+                            {
+                                string fechaBasePH = !string.IsNullOrWhiteSpace(fechaPruebaHStr) ? fechaPruebaHStr : fechaEjecucionStr;
+                                if (!string.IsNullOrWhiteSpace(fechaBasePH) && DateTime.TryParse(fechaBasePH, out DateTime dtPH))
+                                {
+                                    vencimientoPHStr = dtPH.AddYears(5).ToString("yyyy-MM-dd");
+                                }
+                            }
+
+                            E_Extintor extintor = new E_Extintor
+                            {
+                                id = idExtintorExistente ?? 0,
+                                codigo_u = idExtintorExistente.HasValue ? codigoU_Excel : "",
+                                codigo_cliente = string.IsNullOrWhiteSpace(clienteFiltro) ? "GENERAL" : clienteFiltro,
+                                nro_serie = celdaSerie,
+                                nro_interno = string.IsNullOrWhiteSpace(celdaInterno) ? "S/N" : celdaInterno,
+                                sede = celdaSede,
+                                ubicacion = row.Cell(colInicio + 3).GetValue<string>().Trim(),
+                                tipo = row.Cell(colInicio + 4).GetValue<string>().Trim(),
+                                capacidad = row.Cell(colInicio + 5).GetValue<string>().Trim(),
+                                marca = row.Cell(colInicio + 6).GetValue<string>().Trim(),
+                                anio_fabricacion = row.Cell(colInicio + 7).GetValue<string>().Trim(),
+                                eje_servicio = fechaEjecucionStr,
+                                proximo_mantenimiento = proxMantenimientoStr,
+                                fecha_prueba_hidrostatica = fechaPruebaHStr,
+                                vencimiento_ph = vencimientoPHStr,
+                                estado = string.IsNullOrWhiteSpace(row.Cell(colInicio + 12).GetValue<string>())
+                                         ? "Vigente"
+                                         : row.Cell(colInicio + 12).GetValue<string>().Trim()
+                            };
+
+                            extintoresAProcesar.Add(extintor);
+                        }
+
+                        // 2. FASE DE GUARDADO: Si pasó todas las validaciones sin duplicados, recién se envía a la API
                         using (HttpClient client = new HttpClient())
                         {
                             client.Timeout = TimeSpan.FromSeconds(15);
 
-                            foreach (var row in rows)
+                            foreach (var extintor in extintoresAProcesar)
                             {
-                                string celdaSerie = row.Cell(colInicio).GetValue<string>().Trim();
-                                string celdaInterno = row.Cell(colInicio + 1).GetValue<string>().Trim();
-                                string celdaSede = row.Cell(colInicio + 2).GetValue<string>().Trim();
-
-                                // Descartar títulos, filas vacías y cabeceras
-                                if (string.IsNullOrWhiteSpace(celdaSerie) && string.IsNullOrWhiteSpace(celdaInterno) && string.IsNullOrWhiteSpace(celdaSede))
-                                    continue;
-
-                                if (celdaSerie.StartsWith("ANKA FIRE", StringComparison.OrdinalIgnoreCase) ||
-                                    celdaSerie.StartsWith("CLIENTE:", StringComparison.OrdinalIgnoreCase) ||
-                                    celdaSerie.Equals("Nº Serie", StringComparison.OrdinalIgnoreCase) ||
-                                    celdaSerie.Equals("N° Serie", StringComparison.OrdinalIgnoreCase) ||
-                                    celdaSerie.Equals("Codigo.U", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    continue;
-                                }
-
-                                // 3. EXTRAER CÓDIGO ÚNICO EXISTENTE (Si la celda contiene AF-EXT-XXXXXX)
-                                int? idExtintorExistente = null;
-                                int colCodigoU = colInicio > 1 ? colInicio - 1 : 1;
-                                string codigoU_Excel = row.Cell(colCodigoU).GetValue<string>().Trim();
-
-                                if (!string.IsNullOrWhiteSpace(codigoU_Excel) && codigoU_Excel.StartsWith("AF-EXT-", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    string idStr = codigoU_Excel.Substring(7).TrimStart('0');
-                                    if (int.TryParse(idStr, out int idParseado))
-                                    {
-                                        idExtintorExistente = idParseado; // Asigna ID para realizar UPDATE
-                                    }
-                                }
-
-                                // 4. CONSTRUIR ENTIDAD DE EXTINTOR
-                                E_Extintor extintor = new E_Extintor
-                                {
-                                    id = idExtintorExistente ?? 0, // 0 = INSERT (crea nuevo único), >0 = UPDATE
-                                    codigo_u = idExtintorExistente.HasValue ? codigoU_Excel : "",
-                                    codigo_cliente = string.IsNullOrWhiteSpace(clienteFiltro) ? "GENERAL" : clienteFiltro,
-                                    nro_serie = celdaSerie,
-                                    nro_interno = string.IsNullOrWhiteSpace(celdaInterno) ? "S/N" : celdaInterno,
-                                    sede = celdaSede,
-                                    ubicacion = row.Cell(colInicio + 3).GetValue<string>().Trim(),
-                                    tipo = row.Cell(colInicio + 4).GetValue<string>().Trim(),
-                                    capacidad = row.Cell(colInicio + 5).GetValue<string>().Trim(),
-                                    marca = row.Cell(colInicio + 6).GetValue<string>().Trim(),
-                                    anio_fabricacion = row.Cell(colInicio + 7).GetValue<string>().Trim(),
-                                    eje_servicio = ObtenerFechaFormateada(row.Cell(colInicio + 8)),
-                                    proximo_mantenimiento = ObtenerFechaFormateada(row.Cell(colInicio + 9)),
-                                    fecha_prueba_hidrostatica = ObtenerFechaFormateada(row.Cell(colInicio + 10)),
-                                    vencimiento_ph = ObtenerFechaFormateada(row.Cell(colInicio + 11)),
-                                    estado = string.IsNullOrWhiteSpace(row.Cell(colInicio + 12).GetValue<string>())
-                                             ? "Vigente"
-                                             : row.Cell(colInicio + 12).GetValue<string>().Trim()
-                                };
-
-                                // 5. GUARDAR EN MYSQL VÍA API PHP (Recibe y asigna el codigo_u generado)
                                 try
                                 {
                                     string jsonPayload = JsonConvert.SerializeObject(extintor);
@@ -725,22 +804,12 @@ namespace CapaPresentacion
                         }
                     }
 
-                    // 6. REFLEJAR REGISTROS Y NOTIFICAR
                     if (nuevosExtintores.Count > 0)
                     {
                         await CargarDatosWeb(clienteFiltro);
-
-                        string mensaje = $"Se importaron {nuevosExtintores.Count} extintores en sus campos correspondientes.";
-                        if (erroresGuardado > 0)
-                        {
-                            mensaje += $"\n({erroresGuardado} registros no se pudieron guardar en la base de datos).";
-                        }
-
+                        string mensaje = $"Se importaron {nuevosExtintores.Count} extintores exitosamente.";
+                        if (erroresGuardado > 0) mensaje += $"\n({erroresGuardado} registros con error).";
                         MessageBox.Show(mensaje, "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("No se encontraron registros válidos en el archivo Excel.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
                 catch (Exception ex)
@@ -756,16 +825,84 @@ namespace CapaPresentacion
 
         private string ObtenerFechaFormateada(IXLCell cell)
         {
-            if (cell == null || cell.IsEmpty()) return "";
+            if (cell == null || cell.IsEmpty()) return null;
 
-            if (cell.DataType == XLDataType.DateTime)
+            // 1. Si es un número de serie de Excel (fecha numérica)
+            if (cell.DataType == XLDataType.Number)
             {
-                DateTime fecha = cell.GetDateTime();
-                string mes = fecha.ToString("MMM", new CultureInfo("es-ES")).Replace(".", "").ToUpper();
-                return $"{mes}.-{fecha.Year}";
+                try
+                {
+                    double numeroSerial = cell.GetDouble();
+                    if (numeroSerial > 1)
+                    {
+                        DateTime fechaExcel = DateTime.FromOADate(numeroSerial);
+                        return fechaExcel.ToString("yyyy-MM-dd");
+                    }
+                }
+                catch { }
             }
 
-            return FormatearMesAnio(cell.GetValue<string>().Trim());
+            // 2. Si es una fecha real de tipo DateTime en Excel
+            if (cell.DataType == XLDataType.DateTime)
+            {
+                try
+                {
+                    DateTime fecha = cell.GetDateTime();
+                    return fecha.ToString("yyyy-MM-dd");
+                }
+                catch { }
+            }
+
+            // 3. Obtener texto plano de la celda
+            string valorCelda = cell.GetString().Trim();
+            if (string.IsNullOrWhiteSpace(valorCelda)) return null;
+
+            // Intentar parsear como fecha estándar
+            if (DateTime.TryParse(valorCelda, out DateTime fechaParsed))
+            {
+                return fechaParsed.ToString("yyyy-MM-dd");
+            }
+
+            // 4. Limpiar puntos, espacios y convertir a minúsculas para formatos abreviados ("OCT.-25", "nov. 25", etc.)
+            string textoLimpio = valorCelda.Replace(".", "").Replace(" ", "").ToLower();
+
+            if (textoLimpio.Contains("-"))
+            {
+                string[] partes = textoLimpio.Split('-');
+                if (partes.Length >= 2)
+                {
+                    string mesTexto = partes[0].Trim();
+                    string anioTexto = partes[1].Trim();
+
+                    int mesNum = 0;
+                    switch (mesTexto)
+                    {
+                        case "ene": mesNum = 1; break;
+                        case "feb": mesNum = 2; break;
+                        case "mar": mesNum = 3; break;
+                        case "abr": mesNum = 4; break;
+                        case "may": mesNum = 5; break;
+                        case "jun": mesNum = 6; break;
+                        case "jul": mesNum = 7; break;
+                        case "ago": mesNum = 8; break;
+                        case "sep":
+                        case "set":
+                            mesNum = 9;
+                            break;
+                        case "oct": mesNum = 10; break;
+                        case "nov": mesNum = 11; break;
+                        case "dic": mesNum = 12; break;
+                    }
+
+                    if (mesNum > 0 && int.TryParse(anioTexto, out int anio))
+                    {
+                        if (anio < 100) anio += 2000;
+                        return $"{anio}-{mesNum:D2}-01";
+                    }
+                }
+            }
+
+            return null;
         }
 
         private void lbl_Extintores_Click(object sender, EventArgs e)
