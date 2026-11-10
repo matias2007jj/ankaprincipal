@@ -52,6 +52,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.cboMarca = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label16 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.btnExaminar = new System.Windows.Forms.Button();
             this.btnAgregarDocumento = new System.Windows.Forms.Button();
@@ -69,9 +70,8 @@
             this.VencimientoPHCalculado = new System.Windows.Forms.TextBox();
             this.btnGuardar = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label18 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtgvDocumentos)).BeginInit();
@@ -172,6 +172,7 @@
             // 
             // cboSede
             // 
+            this.cboSede.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboSede.FormattingEnabled = true;
             this.cboSede.Location = new System.Drawing.Point(26, 248);
             this.cboSede.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -186,7 +187,7 @@
             this.label1.Location = new System.Drawing.Point(25, 68);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 16);
+            this.label1.Size = new System.Drawing.Size(70, 13);
             this.label1.TabIndex = 19;
             this.label1.Text = "Cod. Unico";
             // 
@@ -197,7 +198,7 @@
             this.label2.Location = new System.Drawing.Point(25, 121);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 16);
+            this.label2.Size = new System.Drawing.Size(60, 13);
             this.label2.TabIndex = 20;
             this.label2.Text = "Nro.Serie";
             // 
@@ -208,7 +209,7 @@
             this.label3.Location = new System.Drawing.Point(23, 183);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(83, 16);
+            this.label3.Size = new System.Drawing.Size(71, 13);
             this.label3.TabIndex = 21;
             this.label3.Text = "Nro Interno";
             // 
@@ -219,7 +220,7 @@
             this.label4.Location = new System.Drawing.Point(25, 237);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(77, 16);
+            this.label4.Size = new System.Drawing.Size(64, 13);
             this.label4.TabIndex = 22;
             this.label4.Text = "Ubicación";
             // 
@@ -230,7 +231,7 @@
             this.label6.Location = new System.Drawing.Point(25, 297);
             this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(50, 16);
+            this.label6.Size = new System.Drawing.Size(42, 13);
             this.label6.TabIndex = 24;
             this.label6.Text = "Marca";
             // 
@@ -241,7 +242,7 @@
             this.label7.Location = new System.Drawing.Point(25, 370);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(142, 16);
+            this.label7.Size = new System.Drawing.Size(117, 13);
             this.label7.TabIndex = 25;
             this.label7.Text = "Año de Fabricación";
             // 
@@ -252,7 +253,7 @@
             this.label8.Location = new System.Drawing.Point(25, 61);
             this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(56, 16);
+            this.label8.Size = new System.Drawing.Size(46, 13);
             this.label8.TabIndex = 26;
             this.label8.Text = "Estado";
             // 
@@ -263,7 +264,7 @@
             this.label9.Location = new System.Drawing.Point(25, 114);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(39, 16);
+            this.label9.Size = new System.Drawing.Size(32, 13);
             this.label9.TabIndex = 27;
             this.label9.Text = "Tipo";
             // 
@@ -274,7 +275,7 @@
             this.label10.Location = new System.Drawing.Point(23, 176);
             this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(83, 16);
+            this.label10.Size = new System.Drawing.Size(67, 13);
             this.label10.TabIndex = 28;
             this.label10.Text = "Capacidad";
             // 
@@ -285,7 +286,7 @@
             this.label11.Location = new System.Drawing.Point(23, 230);
             this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(44, 16);
+            this.label11.Size = new System.Drawing.Size(36, 13);
             this.label11.TabIndex = 29;
             this.label11.Text = "Sede";
             // 
@@ -296,7 +297,7 @@
             this.label12.Location = new System.Drawing.Point(25, 290);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(235, 16);
+            this.label12.Size = new System.Drawing.Size(194, 13);
             this.label12.TabIndex = 30;
             this.label12.Text = "Fecha de ejercución del Servicio";
             // 
@@ -334,6 +335,17 @@
             this.groupBox1.TabIndex = 41;
             this.groupBox1.TabStop = false;
             // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.Location = new System.Drawing.Point(10, 18);
+            this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(186, 17);
+            this.label16.TabIndex = 35;
+            this.label16.Text = "Identificacion del Equipo";
+            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -341,7 +353,7 @@
             this.label5.Location = new System.Drawing.Point(22, 174);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(122, 16);
+            this.label5.Size = new System.Drawing.Size(103, 13);
             this.label5.TabIndex = 57;
             this.label5.Text = "N° de certificado";
             // 
@@ -392,7 +404,7 @@
             this.label15.Location = new System.Drawing.Point(22, 112);
             this.label15.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(256, 16);
+            this.label15.Size = new System.Drawing.Size(210, 13);
             this.label15.TabIndex = 52;
             this.label15.Text = "Vencimiento de Prueba Hidrostatica";
             // 
@@ -403,7 +415,7 @@
             this.label14.Location = new System.Drawing.Point(22, 48);
             this.label14.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(192, 16);
+            this.label14.Size = new System.Drawing.Size(158, 13);
             this.label14.TabIndex = 51;
             this.label14.Text = "Fecha Prueba Hidrostatica";
             // 
@@ -414,7 +426,7 @@
             this.label13.Location = new System.Drawing.Point(25, 363);
             this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(146, 16);
+            this.label13.Size = new System.Drawing.Size(122, 13);
             this.label13.TabIndex = 50;
             this.label13.Text = "Prox. Mantenimiento";
             // 
@@ -535,6 +547,17 @@
             this.groupBox2.TabIndex = 58;
             this.groupBox2.TabStop = false;
             // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label17.Location = new System.Drawing.Point(7, 11);
+            this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(167, 17);
+            this.label17.TabIndex = 36;
+            this.label17.Text = "Estado y Clasificacion";
+            // 
             // groupBox3
             // 
             this.groupBox3.BackColor = System.Drawing.Color.White;
@@ -557,28 +580,6 @@
             this.groupBox3.TabIndex = 59;
             this.groupBox3.TabStop = false;
             // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(10, 18);
-            this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(215, 20);
-            this.label16.TabIndex = 35;
-            this.label16.Text = "Identificacion del Equipo";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(7, 11);
-            this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(197, 20);
-            this.label17.TabIndex = 36;
-            this.label17.Text = "Estado y Clasificacion";
-            // 
             // label18
             // 
             this.label18.AutoSize = true;
@@ -586,7 +587,7 @@
             this.label18.Location = new System.Drawing.Point(10, 11);
             this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(201, 20);
+            this.label18.Size = new System.Drawing.Size(172, 17);
             this.label18.TabIndex = 51;
             this.label18.Text = "Pruebas y Certificados";
             // 

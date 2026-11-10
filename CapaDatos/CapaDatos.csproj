@@ -49,6 +49,7 @@
     <Compile Include="D_Clientes.cs" />
     <Compile Include="D_Documentos.cs" />
     <Compile Include="D_Extintores.cs" />
+    <Compile Include="D_Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

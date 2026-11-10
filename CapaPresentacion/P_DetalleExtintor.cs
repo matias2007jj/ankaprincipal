@@ -15,7 +15,6 @@ namespace CapaPresentacion
 {
     public partial class P_DetalleExtintor : Form
     {
-
         private bool ValidarCampos()
         {
             // Invocación a la clase validadora
@@ -234,8 +233,10 @@ namespace CapaPresentacion
                 cboSede.ValueMember = "id";
                 cboSede.DataSource = listaSedes;
 
-                cboSede.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                cboSede.AutoCompleteSource = AutoCompleteSource.ListItems;
+                // Corrección: Garantizar la configuración permitida por Windows Forms para evitar la excepción
+                cboSede.AutoCompleteMode = AutoCompleteMode.None;
+                cboSede.AutoCompleteSource = AutoCompleteSource.None;
+                cboSede.DropDownStyle = ComboBoxStyle.DropDownList;
             }
             catch (Exception ex)
             {
@@ -479,7 +480,6 @@ namespace CapaPresentacion
                 int index = dtgvDocumentos.CurrentRow.Index;
                 if (index >= 0 && index < listaDocsAdjuntos.Count)
                 {
-                    // Remueve el documento seleccionado de la memoria
                     listaDocsAdjuntos.RemoveAt(index);
                     RefrescarGrillaDocumentos();
                 }
@@ -496,7 +496,6 @@ namespace CapaPresentacion
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            // Invocar la validación de la clase antes de continuar
             if (!ValidarCampos()) return;
 
             try
@@ -504,7 +503,6 @@ namespace CapaPresentacion
                 this.UseWaitCursor = true;
                 btnGuardar.Enabled = false;
 
-                // Subir solo archivos nuevos agregados desde la PC local
                 foreach (var doc in listaDocsAdjuntos)
                 {
                     if (!string.IsNullOrEmpty(doc.ruta_local) && File.Exists(doc.ruta_local) && string.IsNullOrEmpty(doc.ruta_web))

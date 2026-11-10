@@ -1,19 +1,14 @@
-﻿using System;
+﻿using CapaNegocio;
+using System;
 using System.Drawing;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace CapaPresentacion
 {
     public partial class LOGIN : Form
     {
-
-        // URL de tu API PHP
-        private const string API_LOGIN_URL = "http://tu-servidor-intranet/api/login.php";
+        private readonly N_Usuario objNegocio = new N_Usuario();
 
         #region Mover Formulario sin Bordes
 
@@ -25,8 +20,11 @@ namespace CapaPresentacion
 
         private void panelTitulo_MouseMove(object sender, MouseEventArgs e)
         {
-            ReleaseCapture();
-            SendMessage(this.Handle, 0x112, 0xf012, 0);
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(this.Handle, 0x112, 0xf012, 0);
+            }
         }
 
         #endregion
@@ -34,25 +32,21 @@ namespace CapaPresentacion
         public LOGIN()
         {
             InitializeComponent();
-
             txt_Contraseña.UseSystemPasswordChar = true;
         }
 
         #region Eventos de Controles
 
-
-
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            this.Close();
-
+            Application.Exit();
         }
 
         private void txt_Contraseña_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.SuppressKeyPress = true; // Evita el sonido de alerta al presionar Enter
+                e.SuppressKeyPress = true;
                 btn_Ingresar.PerformClick();
             }
         }
@@ -62,12 +56,11 @@ namespace CapaPresentacion
             txt_Contraseña.UseSystemPasswordChar = !txt_Contraseña.UseSystemPasswordChar;
         }
 
-        private void btn_Ingresar_Click(object sender, EventArgs e)
+        private async void btn_Ingresar_Click(object sender, EventArgs e)
         {
             string usuario = txt_Usuario.Text.Trim();
             string password = txt_Contraseña.Text.Trim();
 
-            // Validar campos vacíos
             if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Por favor, ingrese usuario y contraseña.", "Campos Requeridos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -75,17 +68,15 @@ namespace CapaPresentacion
                 return;
             }
 
-            // Cambiar estado del botón para indicar procesamiento
             btn_Ingresar.Enabled = false;
             btn_Ingresar.Text = "Verificando...";
 
             try
             {
-                bool loginExitoso = await AutenticarUsuarioAsync(usuario, password);
+                bool loginExitoso = await objNegocio.ValidarLogin(usuario, password);
 
                 if (loginExitoso)
                 {
-                    // Abrir el formulario Principal y ocultar el Login
                     P_Principal principal = new P_Principal();
                     principal.Show();
                     this.Hide();
@@ -107,40 +98,7 @@ namespace CapaPresentacion
                 btn_Ingresar.Text = "Ingresar";
             }
         }
-            #endregion
 
-            #region Método de Autenticación con Backend PHP
-
-        private async Task<bool> AutenticarUsuarioAsync(string usuario, string password)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.Timeout = TimeSpan.FromSeconds(10);
-
-                var loginData = new
-                {
-                    usuario = usuario,
-                    password = password
-                };
-
-                string json = JsonConvert.SerializeObject(loginData);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PostAsync(API_LOGIN_URL, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string jsonResult = await response.Content.ReadAsStringAsync();
-                    dynamic resultado = JsonConvert.DeserializeObject(jsonResult);
-
-                    // Espera una respuesta JSON del tipo: { "success": true }
-                    return resultado != null && resultado.success == true;
-                }
-
-                return false;
-            }
-        }
-
-            #endregion
+        #endregion
     }
 }

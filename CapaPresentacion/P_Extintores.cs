@@ -1,18 +1,19 @@
 ﻿using CapaDatos;
 using CapaEntidad;
 using CapaNegocio;
+using ClosedXML.Excel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ClosedXML.Excel;
 
 namespace CapaPresentacion
 {
@@ -41,17 +42,48 @@ namespace CapaPresentacion
             txtBuscar.ForeColor = Color.Gray;
             dtgv_Extintores.AutoGenerateColumns = false;
 
-            // Asegurar eventos
+            // Asegurar suscripción de eventos
             dtgv_Extintores.CellContentClick -= dtgv_Extintores_CellContentClick;
             dtgv_Extintores.CellContentClick += dtgv_Extintores_CellContentClick;
 
             dtgv_Extintores.CellFormatting -= dtgv_Extintores_CellFormatting;
             dtgv_Extintores.CellFormatting += dtgv_Extintores_CellFormatting;
 
+            // Evento para capturar el Enter enviado por Barcode to PC o lectoras QR
+            txtBuscar.KeyDown -= txtBuscar_KeyDown;
+            txtBuscar.KeyDown += txtBuscar_KeyDown;
+
             ConfigurarMapeoColumnas();
             AgregarColumnaDocumentacion();
 
             await CargarDatosWeb(clienteFiltro);
+        }
+
+        private void txtBuscar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true; // Previene el sonido de alerta de Windows
+                LimpiarUrlBarcodeToPC();
+                FiltrarTabla();
+            }
+        }
+
+        private void LimpiarUrlBarcodeToPC()
+        {
+            string textoLeido = txtBuscar.Text.Trim();
+
+            // Si el QR escaneado contiene una URL (ej. https://intranet.ankafire.com.pe/extintor/AF-EXT-000609)
+            if (textoLeido.Contains("/"))
+            {
+                string[] partes = textoLeido.Split('/');
+                string codigoExtraido = partes[partes.Length - 1].Trim();
+
+                if (!string.IsNullOrWhiteSpace(codigoExtraido))
+                {
+                    txtBuscar.Text = codigoExtraido;
+                }
+            }
         }
 
         private void ConfigurarMapeoColumnas()
@@ -127,7 +159,7 @@ namespace CapaPresentacion
                 DataGridViewButtonColumn colCert = new DataGridViewButtonColumn();
                 colCert.Name = "btnCertificado";
                 colCert.HeaderText = "DOCUMENTACIÓN";
-                colCert.UseColumnTextForButtonValue = false; // Permite texto dinámico por celda
+                colCert.UseColumnTextForButtonValue = false; // Texto dinámico por celda
                 colCert.FlatStyle = FlatStyle.Flat;
                 colCert.DefaultCellStyle.ForeColor = Color.FromArgb(227, 6, 19);
                 colCert.DefaultCellStyle.Font = new Font("Arial", 8.5f, FontStyle.Bold);
@@ -152,7 +184,6 @@ namespace CapaPresentacion
                 E_Extintor extintor = dtgv_Extintores.Rows[e.RowIndex].DataBoundItem as E_Extintor;
                 if (extintor != null)
                 {
-                    // Evaluar el tipo de documento disponible
                     if (!string.IsNullOrWhiteSpace(extintor.ruta_informe_tecnico))
                     {
                         e.Value = "Informe Técnico";
@@ -270,6 +301,7 @@ namespace CapaPresentacion
 
         private void btnBuscar_Click(object sender, EventArgs e)
         {
+            LimpiarUrlBarcodeToPC();
             FiltrarTabla();
         }
 
@@ -280,7 +312,15 @@ namespace CapaPresentacion
             if (filtro == Texto.ToLower() || string.IsNullOrWhiteSpace(filtro))
             {
                 dtgv_Extintores.DataSource = listaCompletaExtintores;
+                ActualizarContador();
                 return;
+            }
+
+            // Si contiene barras de URL, extrae únicamente el código final
+            if (filtro.Contains("/"))
+            {
+                string[] segmentos = filtro.Split('/');
+                filtro = segmentos[segmentos.Length - 1].ToLower();
             }
 
             var listaFiltrada = listaCompletaExtintores.Where(x =>
@@ -331,7 +371,6 @@ namespace CapaPresentacion
 
             if (esBotonCertificado)
             {
-                // Priorizar el documento asignado
                 string rutaCert = !string.IsNullOrWhiteSpace(seleccionado.ruta_informe_tecnico)
                     ? seleccionado.ruta_informe_tecnico
                     : (!string.IsNullOrWhiteSpace(seleccionado.ruta_cert_operatividad) ? seleccionado.ruta_cert_operatividad : seleccionado.ruta_cert_ph);
@@ -446,10 +485,6 @@ namespace CapaPresentacion
             }
         }
 
-        #region Elicitations Diagnostic Fork
-        /* Elicit control for multi-branch resolution */
-        #endregion
-
         #endregion
 
         private void label1_Click(object sender, EventArgs e)
@@ -471,13 +506,11 @@ namespace CapaPresentacion
                 return;
             }
 
-            // Usar el Nombre Comercial si existe, de lo contrario clienteFiltro o GENERAL
             string nombreMostrar = !string.IsNullOrWhiteSpace(clienteNombre)
                 ? clienteNombre.ToUpper()
                 : (!string.IsNullOrWhiteSpace(clienteFiltro) ? clienteFiltro : "TODOS LOS CLIENTES");
 
-            // Limpiar caracteres inválidos para el nombre de archivo
-            string nombreArchivoSanitizado = string.Join("_", nombreMostrar.Split(System.IO.Path.GetInvalidFileNameChars()));
+            string nombreArchivoSanitizado = string.Join("_", nombreMostrar.Split(Path.GetInvalidFileNameChars()));
 
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
@@ -501,7 +534,7 @@ namespace CapaPresentacion
                         worksheet.Cell(2, 1).Value = $"CLIENTE: {nombreMostrar}";
                         worksheet.Cell(2, 1).Style.Font.Bold = true;
                         worksheet.Cell(2, 1).Style.Font.FontSize = 11;
-                        worksheet.Cell(2, 1).Style.Font.FontColor = XLColor.FromArgb(227, 6, 19); // Rojo corporativo
+                        worksheet.Cell(2, 1).Style.Font.FontColor = XLColor.FromArgb(227, 6, 19);
 
                         // 2. ENCABEZADOS DE LA TABLA (Fila 4)
                         int filaInicioTabla = 4;
@@ -544,7 +577,6 @@ namespace CapaPresentacion
                         rangoTabla.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         rangoTabla.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                        // Rejilla de bordes finos
                         rangoTabla.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                         rangoTabla.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                         rangoTabla.Style.Border.OutsideBorderColor = XLColor.LightGray;
@@ -582,8 +614,8 @@ namespace CapaPresentacion
 
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
-                        IXLWorksheet worksheet = workbook.Worksheet(1); // Lee la primera plantilla/hoja
-                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Salta los encabezados (Fila 1)
+                        IXLWorksheet worksheet = workbook.Worksheet(1);
+                        var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
 
                         foreach (var row in rows)
                         {
@@ -604,10 +636,8 @@ namespace CapaPresentacion
                                 estado = string.IsNullOrWhiteSpace(row.Cell(13).GetValue<string>()) ? "Vigente" : row.Cell(13).GetValue<string>().Trim()
                             };
 
-                            // Asigna el filtro del cliente actual si existe
                             extintor.codigo_cliente = clienteFiltro;
 
-                            // Solo agregar si la fila contiene al menos un N° Serie o Código
                             if (!string.IsNullOrWhiteSpace(extintor.nro_serie) || !string.IsNullOrWhiteSpace(extintor.codigo_u))
                             {
                                 nuevosExtintores.Add(extintor);
@@ -617,10 +647,8 @@ namespace CapaPresentacion
 
                     if (nuevosExtintores.Count > 0)
                     {
-                        // Unir los nuevos registros a la lista principal
                         listaCompletaExtintores.AddRange(nuevosExtintores);
 
-                        // Refrescar la vista de la tabla
                         dtgv_Extintores.DataSource = null;
                         dtgv_Extintores.DataSource = listaCompletaExtintores;
                         ActualizarContador();
