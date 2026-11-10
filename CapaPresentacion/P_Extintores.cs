@@ -201,17 +201,24 @@ namespace CapaPresentacion
                 E_Extintor extintor = dtgv_Extintores.Rows[e.RowIndex].DataBoundItem as E_Extintor;
                 if (extintor != null)
                 {
+                    List<string> docsDisponibles = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(extintor.ruta_cert_operatividad))
+                    {
+                        docsDisponibles.Add("Cert. Operatividad");
+                    }
                     if (!string.IsNullOrWhiteSpace(extintor.ruta_informe_tecnico))
                     {
-                        e.Value = "Informe Técnico";
+                        docsDisponibles.Add("Inf. Técnico");
                     }
-                    else if (!string.IsNullOrWhiteSpace(extintor.ruta_cert_operatividad))
+                    if (!string.IsNullOrWhiteSpace(extintor.ruta_cert_ph))
                     {
-                        e.Value = "Cert. Operatividad";
+                        docsDisponibles.Add("Cert. PH");
                     }
-                    else if (!string.IsNullOrWhiteSpace(extintor.ruta_cert_ph))
+
+                    if (docsDisponibles.Count > 0)
                     {
-                        e.Value = "Cert. Prueba H.";
+                        e.Value = string.Join(" / ", docsDisponibles);
                     }
                     else
                     {
@@ -267,13 +274,11 @@ namespace CapaPresentacion
         {
             if (string.IsNullOrWhiteSpace(fechaTexto)) return "";
 
-            // Si ya viene con formato abreviado (ej. "OCT-2025" o "OCT.-2025")
             if (fechaTexto.Contains("-") && fechaTexto.Length <= 9 && !char.IsDigit(fechaTexto[0]))
             {
                 return fechaTexto.ToUpper();
             }
 
-            // Si viene en formato de fecha estándar de MySQL (ej. "2025-10-01")
             if (DateTime.TryParse(fechaTexto, out DateTime fechaParsed))
             {
                 string mesAbreviado = fechaParsed.ToString("MMM", new CultureInfo("es-ES")).Replace(".", "").ToUpper();
@@ -315,7 +320,10 @@ namespace CapaPresentacion
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
         {
-            FiltrarTabla();
+            if (string.IsNullOrWhiteSpace(txtBuscar.Text) || txtBuscar.Text == Texto)
+            {
+                FiltrarTabla();
+            }
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)
@@ -335,7 +343,6 @@ namespace CapaPresentacion
                 return;
             }
 
-            // Si contiene barras de URL, extrae únicamente el código final
             if (filtro.Contains("/"))
             {
                 string[] segmentos = filtro.Split('/');
@@ -390,41 +397,38 @@ namespace CapaPresentacion
 
             if (esBotonCertificado)
             {
-                string rutaCert = !string.IsNullOrWhiteSpace(seleccionado.ruta_informe_tecnico)
-                    ? seleccionado.ruta_informe_tecnico
-                    : (!string.IsNullOrWhiteSpace(seleccionado.ruta_cert_operatividad) ? seleccionado.ruta_cert_operatividad : seleccionado.ruta_cert_ph);
+                List<Tuple<string, string>> opcionesDocs = new List<Tuple<string, string>>();
 
-                if (!string.IsNullOrWhiteSpace(rutaCert))
+                if (!string.IsNullOrWhiteSpace(seleccionado.ruta_cert_operatividad))
+                    opcionesDocs.Add(new Tuple<string, string>("Certificado de Operatividad", seleccionado.ruta_cert_operatividad));
+
+                if (!string.IsNullOrWhiteSpace(seleccionado.ruta_informe_tecnico))
+                    opcionesDocs.Add(new Tuple<string, string>("Informe Técnico", seleccionado.ruta_informe_tecnico));
+
+                if (!string.IsNullOrWhiteSpace(seleccionado.ruta_cert_ph))
+                    opcionesDocs.Add(new Tuple<string, string>("Certificado de Prueba Hidrostática", seleccionado.ruta_cert_ph));
+
+                if (opcionesDocs.Count == 0)
                 {
-                    rutaCert = rutaCert.Trim().TrimStart('/');
-
-                    if (!rutaCert.StartsWith("storage/", StringComparison.OrdinalIgnoreCase) &&
-                        !rutaCert.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                    {
-                        rutaCert = "storage/" + rutaCert;
-                    }
-
-                    if (!rutaCert.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                    {
-                        rutaCert = "https://intranet.ankafire.com.pe/" + rutaCert;
-                    }
-
-                    try
-                    {
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = rutaCert,
-                            UseShellExecute = true
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error al abrir el documento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("Este extintor no tiene ningún documento adjunto.", "Documentación", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else if (opcionesDocs.Count == 1)
+                {
+                    AbrirUrlDocumento(opcionesDocs[0].Item2);
                 }
                 else
                 {
-                    MessageBox.Show("Este extintor no tiene ningún documento adjunto.", "Documentación", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ContextMenuStrip menuDocs = new ContextMenuStrip();
+                    foreach (var doc in opcionesDocs)
+                    {
+                        ToolStripMenuItem item = new ToolStripMenuItem(doc.Item1);
+                        string rutaActual = doc.Item2;
+                        item.Click += (s, args) => { AbrirUrlDocumento(rutaActual); };
+                        menuDocs.Items.Add(item);
+                    }
+
+                    Rectangle cellRect = dtgv_Extintores.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true);
+                    menuDocs.Show(dtgv_Extintores, cellRect.Location);
                 }
             }
             else if (esBotonEditar)
@@ -453,6 +457,37 @@ namespace CapaPresentacion
             {
                 P_ImprimirQR frmQR = new P_ImprimirQR(seleccionado);
                 frmQR.ShowDialog();
+            }
+        }
+
+        private void AbrirUrlDocumento(string rutaCert)
+        {
+            if (string.IsNullOrWhiteSpace(rutaCert)) return;
+
+            rutaCert = rutaCert.Trim().TrimStart('/');
+
+            if (!rutaCert.StartsWith("storage/", StringComparison.OrdinalIgnoreCase) &&
+                !rutaCert.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                rutaCert = "storage/" + rutaCert;
+            }
+
+            if (!rutaCert.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                rutaCert = "https://intranet.ankafire.com.pe/" + rutaCert;
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = rutaCert,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al abrir el documento: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -647,7 +682,6 @@ namespace CapaPresentacion
                             }
                         }
 
-                        // Listas y conjuntos para validación previa
                         List<E_Extintor> extintoresAProcesar = new List<E_Extintor>();
                         HashSet<string> seriesEnArchivo = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -660,7 +694,6 @@ namespace CapaPresentacion
                             }
                         }
 
-                        // 1. FASE DE VALIDACIÓN: Revisar todo el archivo antes de enviar nada
                         foreach (var row in rows)
                         {
                             string celdaSerie = row.Cell(colInicio).GetValue<string>().Trim();
@@ -679,13 +712,12 @@ namespace CapaPresentacion
                                 continue;
                             }
 
-                            // Validar si el número de serie se repite DENTRO del propio archivo Excel
                             if (seriesEnArchivo.Contains(celdaSerie))
                             {
                                 MessageBox.Show($"El número de serie '{celdaSerie}' está duplicado dentro del archivo Excel.\n\nLa importación ha sido cancelada por completo y no se guardó ningún registro.",
                                                   "Error de Duplicidad", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 this.UseWaitCursor = false;
-                                return; // Cancela absolutamente todo antes de guardar
+                                return;
                             }
                             seriesEnArchivo.Add(celdaSerie);
 
@@ -702,7 +734,6 @@ namespace CapaPresentacion
                                 }
                             }
 
-                            // Validar si ya existe en la base de datos (y no es el mismo que se está actualizando)
                             if (!idExtintorExistente.HasValue && seriesExistentesBD.Contains(celdaSerie))
                             {
                                 MessageBox.Show($"El número de serie '{celdaSerie}' ya se encuentra registrado en el sistema.\n\nLa importación ha sido cancelada.",
@@ -711,7 +742,6 @@ namespace CapaPresentacion
                                 return;
                             }
 
-                            // Procesamiento de fechas
                             string fechaEjecucionStr = ObtenerFechaFormateada(row.Cell(colInicio + 8));
                             string fechaPruebaHStr = ObtenerFechaFormateada(row.Cell(colInicio + 10));
 
@@ -762,7 +792,6 @@ namespace CapaPresentacion
                             extintoresAProcesar.Add(extintor);
                         }
 
-                        // 2. FASE DE GUARDADO: Si pasó todas las validaciones sin duplicados, recién se envía a la API
                         using (HttpClient client = new HttpClient())
                         {
                             client.Timeout = TimeSpan.FromSeconds(15);
@@ -827,7 +856,6 @@ namespace CapaPresentacion
         {
             if (cell == null || cell.IsEmpty()) return null;
 
-            // 1. Si es un número de serie de Excel (fecha numérica)
             if (cell.DataType == XLDataType.Number)
             {
                 try
@@ -842,7 +870,6 @@ namespace CapaPresentacion
                 catch { }
             }
 
-            // 2. Si es una fecha real de tipo DateTime en Excel
             if (cell.DataType == XLDataType.DateTime)
             {
                 try
@@ -853,17 +880,14 @@ namespace CapaPresentacion
                 catch { }
             }
 
-            // 3. Obtener texto plano de la celda
             string valorCelda = cell.GetString().Trim();
             if (string.IsNullOrWhiteSpace(valorCelda)) return null;
 
-            // Intentar parsear como fecha estándar
             if (DateTime.TryParse(valorCelda, out DateTime fechaParsed))
             {
                 return fechaParsed.ToString("yyyy-MM-dd");
             }
 
-            // 4. Limpiar puntos, espacios y convertir a minúsculas para formatos abreviados ("OCT.-25", "nov. 25", etc.)
             string textoLimpio = valorCelda.Replace(".", "").Replace(" ", "").ToLower();
 
             if (textoLimpio.Contains("-"))
@@ -909,5 +933,5 @@ namespace CapaPresentacion
         {
 
         }
-     }
+    }
 }
