@@ -662,6 +662,18 @@ namespace CapaPresentacion
                     List<E_Extintor> nuevosExtintores = new List<E_Extintor>();
                     int erroresGuardado = 0;
 
+                    // Catálogos oficiales fijos para Tipos, Marcas y Capacidades
+                    HashSet<string> tiposValidos = new HashSet<string> { "PQS", "CO2", "H2O-D", "H2O-A", "ESPUMA", "K", "HALOTRON I", "CLASE D", "OTRO", "PQS ABC" };
+                    HashSet<string> capacidadesValidas = new HashSet<string> { "01 KG", "02 KG", "04 KG", "05 KG", "06 KG", "09 KG", "10 KG", "12 KG", "25 KG", "50 KG", "70 LG", "75 KG", "100 KG", "2.5 LB", "05 LB", "10 LB", "11 LB", "15 LB", "20 LB", "30 LB", "125 LB", "1.6 GL", "1.75 GL", "2.5 GL", "06 LT" };
+                    HashSet<string> marcasValidas = new HashSet<string> { "NACIONAL", "ASIÁTICO", "AMEREX", "ANSUL", "BADGER", "BUCKEYE", "GLORIA", "FOX", "KIDDE", "PYRO-CHEM", "FIRE STAR", "MOYNE", "OTROS", "SIN MARCA / NO IDENTIFICADA" };
+
+                    // Extraer dinámicamente las Sedes válidas que ya existen en la base de datos actual (listaCompletaExtintores)
+                    HashSet<string> sedesValidas = new HashSet<string>(listaCompletaExtintores.Where(x => !string.IsNullOrWhiteSpace(x.sede)).Select(x => x.sede.Trim()), StringComparer.OrdinalIgnoreCase);
+
+                    // Añadir sedes por defecto comunes si lo requieres (opcional)
+                    string[] sedesPorDefecto = { "LURIN", "ICA", "PISCO", "LIMA", "CALLAO" };
+                    foreach (var s in sedesPorDefecto) sedesValidas.Add(s);
+
                     using (XLWorkbook workbook = new XLWorkbook(openFileDialog.FileName))
                     {
                         IXLWorksheet worksheet = workbook.Worksheet(1);
@@ -694,8 +706,12 @@ namespace CapaPresentacion
                             }
                         }
 
+                        int numeroFilaExcel = 0;
+
+                        // 1. FASE DE VALIDACIÓN ESTRICTA
                         foreach (var row in rows)
                         {
+                            numeroFilaExcel++;
                             string celdaSerie = row.Cell(colInicio).GetValue<string>().Trim();
                             string celdaInterno = row.Cell(colInicio + 1).GetValue<string>().Trim();
                             string celdaSede = row.Cell(colInicio + 2).GetValue<string>().Trim();
@@ -712,14 +728,87 @@ namespace CapaPresentacion
                                 continue;
                             }
 
-                            if (seriesEnArchivo.Contains(celdaSerie))
+                            // Validación de Duplicados de Serie (Permite nulos o S/N)
+                            bool esVacioOSN = string.IsNullOrWhiteSpace(celdaSerie) || celdaSerie.Equals("S/N", StringComparison.OrdinalIgnoreCase);
+
+                            if (!esVacioOSN)
                             {
-                                MessageBox.Show($"El número de serie '{celdaSerie}' está duplicado dentro del archivo Excel.\n\nLa importación ha sido cancelada por completo y no se guardó ningún registro.",
-                                                  "Error de Duplicidad", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                if (seriesEnArchivo.Contains(celdaSerie))
+                                {
+                                    MessageBox.Show($"Error en la Fila {numeroFilaExcel}:\nEl número de serie '{celdaSerie}' está duplicado dentro del archivo Excel.\n\nPor favor, ingrese los datos correctamente.",
+                                                      "Error de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    this.UseWaitCursor = false;
+                                    return;
+                                }
+                                seriesEnArchivo.Add(celdaSerie);
+
+                                int? idCheckTemp = null;
+                                int colCodCheck = colInicio > 1 ? colInicio - 1 : 1;
+                                string codCheckStr = row.Cell(colCodCheck).GetValue<string>().Trim();
+                                if (!string.IsNullOrWhiteSpace(codCheckStr) && codCheckStr.StartsWith("AF-EXT-", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (int.TryParse(codCheckStr.Substring(7).TrimStart('0'), out int idParse))
+                                    {
+                                        idCheckTemp = idParse;
+                                    }
+                                }
+
+                                if (!idCheckTemp.HasValue && seriesExistentesBD.Contains(celdaSerie))
+                                {
+                                    MessageBox.Show($"Error en la Fila {numeroFilaExcel}:\nEl número de serie '{celdaSerie}' ya se encuentra registrado en el sistema.\n\nPor favor, ingrese los datos correctamente.",
+                                                      "Error de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    this.UseWaitCursor = false;
+                                    return;
+                                }
+                            }
+
+                            // 2. VALIDAR SEDE EXACTA CONTRA LA BASE DE DATOS
+                            if (sedesValidas.Count > 0 && !sedesValidas.Contains(celdaSede))
+                            {
+                                MessageBox.Show($"Por favor, ingrese correctamente los datos.\n\nLa **Sede** ingresada ('{celdaSede}') en la **Fila {numeroFilaExcel}** no está registrada en la base de datos.",
+                                                  "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 this.UseWaitCursor = false;
                                 return;
                             }
-                            seriesEnArchivo.Add(celdaSerie);
+
+                            // 3. VALIDAR TIPO, CAPACIDAD Y MARCA
+                            string tipoExcel = row.Cell(colInicio + 4).GetValue<string>().Trim();
+                            string capacidadExcel = row.Cell(colInicio + 5).GetValue<string>().Trim();
+                            string marcaExcel = row.Cell(colInicio + 6).GetValue<string>().Trim();
+                            string anioFabricacionExcel = row.Cell(colInicio + 7).GetValue<string>().Trim();
+
+                            if (!tiposValidos.Contains(tipoExcel))
+                            {
+                                MessageBox.Show($"Por favor, ingrese correctamente los datos.\n\nEl **Tipo** ingresado ('{tipoExcel}') en la **Fila {numeroFilaExcel}** no coincide con los valores de la base de datos.",
+                                                  "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.UseWaitCursor = false;
+                                return;
+                            }
+
+                            if (!capacidadesValidas.Contains(capacidadExcel))
+                            {
+                                MessageBox.Show($"Por favor, ingrese correctamente los datos.\n\nLa **Capacidad** ingresada ('{capacidadExcel}') en la **Fila {numeroFilaExcel}** no coincide con los valores de la base de datos.",
+                                                  "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.UseWaitCursor = false;
+                                return;
+                            }
+
+                            if (!marcasValidas.Contains(marcaExcel))
+                            {
+                                MessageBox.Show($"Por favor, ingrese correctamente los datos.\n\nLa **Marca** ingresada ('{marcaExcel}') en la **Fila {numeroFilaExcel}** no coincide con los valores de la base de datos.",
+                                                  "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.UseWaitCursor = false;
+                                return;
+                            }
+
+                            // 4. VALIDAR AÑO DE FABRICACIÓN (Solo números enteros, sin letras)
+                            if (!int.TryParse(anioFabricacionExcel, out int anioFabNum) || anioFabNum < 1950 || anioFabNum > DateTime.Now.Year)
+                            {
+                                MessageBox.Show($"Por favor, ingrese correctamente los datos.\n\nEl **Año de Fabricación** ingresado ('{anioFabricacionExcel}') en la **Fila {numeroFilaExcel}** es inválido (solo debe contener números).",
+                                                  "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                this.UseWaitCursor = false;
+                                return;
+                            }
 
                             int? idExtintorExistente = null;
                             int colCodigoU = colInicio > 1 ? colInicio - 1 : 1;
@@ -734,14 +823,7 @@ namespace CapaPresentacion
                                 }
                             }
 
-                            if (!idExtintorExistente.HasValue && seriesExistentesBD.Contains(celdaSerie))
-                            {
-                                MessageBox.Show($"El número de serie '{celdaSerie}' ya se encuentra registrado en el sistema.\n\nLa importación ha sido cancelada.",
-                                                  "Error de Duplicidad", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                this.UseWaitCursor = false;
-                                return;
-                            }
-
+                            // Procesamiento de fechas
                             string fechaEjecucionStr = ObtenerFechaFormateada(row.Cell(colInicio + 8));
                             string fechaPruebaHStr = ObtenerFechaFormateada(row.Cell(colInicio + 10));
 
@@ -776,10 +858,10 @@ namespace CapaPresentacion
                                 nro_interno = string.IsNullOrWhiteSpace(celdaInterno) ? "S/N" : celdaInterno,
                                 sede = celdaSede,
                                 ubicacion = row.Cell(colInicio + 3).GetValue<string>().Trim(),
-                                tipo = row.Cell(colInicio + 4).GetValue<string>().Trim(),
-                                capacidad = row.Cell(colInicio + 5).GetValue<string>().Trim(),
-                                marca = row.Cell(colInicio + 6).GetValue<string>().Trim(),
-                                anio_fabricacion = row.Cell(colInicio + 7).GetValue<string>().Trim(),
+                                tipo = tipoExcel,
+                                capacidad = capacidadExcel,
+                                marca = marcaExcel,
+                                anio_fabricacion = anioFabricacionExcel,
                                 eje_servicio = fechaEjecucionStr,
                                 proximo_mantenimiento = proxMantenimientoStr,
                                 fecha_prueba_hidrostatica = fechaPruebaHStr,
@@ -792,6 +874,7 @@ namespace CapaPresentacion
                             extintoresAProcesar.Add(extintor);
                         }
 
+                        // 5. FASE DE GUARDADO
                         using (HttpClient client = new HttpClient())
                         {
                             client.Timeout = TimeSpan.FromSeconds(15);
